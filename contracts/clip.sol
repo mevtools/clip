@@ -37,7 +37,7 @@ contract C2022V1 is AccessControl {
     /// FixIn交易满足：maxReserveIn^2 + (amountIn*0.9975)*maxReserveIn = (amountIn*0.9975) * reserve0 * reserve1 / maxAmountOut
     /// minReserveIn 最小盈利的reserve，当reserve涨到这个点时就无法盈利了，计算盈利时要考虑交易手续费0.25%
     /// minReserveIn 满足：amountOut*minReserveIn^2 + amountOut*0.9975*(amountIn - c)*minReserveIn + k*0.9975*(c-amountIn) = 0
-    /// c为成本（需将交易手续费计算在内），k=reserveIn*reserveOut
+    /// c为成本（需将交易手续费计算在内，手续费为(maxReserveIn-reserve) * 0.0025），k=reserveIn*reserveOut
     /// id 防止模拟执行
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
