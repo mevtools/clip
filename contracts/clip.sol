@@ -25,92 +25,93 @@ contract C2022V1 is AccessControl {
         token.transfer(to, amount);
     }
 
-    function withdrawETH(address to, uint256 amount) public onlyRole(WITHDRAW_ROLE) {
+    function withdrawETH(address payable to, uint256 amount) public onlyRole(WITHDRAW_ROLE) {
         to.transfer(amount);
     }
 
-    /// maxReserve 被夹交易可以承受的上限，FixOut交易满足：maxReserve^2 + (maxAmountIn*0.9975)*maxReserve = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
-    /// FixIn交易满足：maxReserve^2 + (amountIn*0.9975)*maxReserve = (amountIn*0.9975) * reserve0 * reserve1 / maxAmountOut
-    /// minReserve 最小盈利的reserve，当reserve涨到这个点时就无法盈利了，计算盈利时要考虑交易手续费0.25%
+    /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
+    /// FixIn交易满足：maxReserveIn^2 + (amountIn*0.9975)*maxReserveIn = (amountIn*0.9975) * reserve0 * reserve1 / maxAmountOut
+    /// minReserveIn 最小盈利的reserve，当reserve涨到这个点时就无法盈利了，计算盈利时要考虑交易手续费0.25%
     /// id 防止模拟执行
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
-    function tryBuyToken1(IPancakePair pair, uint256 deadline, uint256 maxReserve, uint256 minReserve, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
+    function tryBuyToken1(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
+        TradeInfo storage info = tradeInfo[msg.sender];
         if (info.id != id || block.number <= height) {
-            while(1);
+            while(true) {}
         }
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveOut < minReserve && block.number <= deadline, "E001");
-        TradeInfo storage info = tradeInfo[msg.sender];
-        IERC20 tokenIn = pair.token0();
+        require(reserveOut < minReserveIn && block.number <= deadline, "E001");
+        IERC20 tokenIn = IERC20(pair.token0());
         // uint256 balanceIn = tokenIn.balanceOf(address(this));
-        uint256 amountIn = maxReserve - reserveIn;
+        uint256 amountIn = maxReserveIn - reserveIn;
         // amountIn = amountIn < balanceIn ? amountIn : balanceIn;
         uint256 amountInWithFee = amountIn * 9975;
         uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
         
-        tokenIn.transfer(pair, amountIn);
-        pair.swap(0, amountOut, address(this), bytes(0));
-        info.amount1 = amountOut;
+        tokenIn.transfer(address(pair), amountIn);
+        pair.swap(0, amountOut, address(this), "");
+        info.amount1 = uint112(amountOut);
     }
 
-    /// maxReserve 被夹交易可以承受的上限，满足：maxReserve^2 + (maxAmountIn*0.9975)*maxReserve = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
-    /// minReserve 最小盈利的reserve，当reserve涨到这个点时就无法盈利了，计算盈利时要考虑交易手续费0.25%
+    /// maxReserveIn 被夹交易可以承受的上限，满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
+    /// minReserveIn 最小盈利的reserve，当reserve涨到这个点时就无法盈利了，计算盈利时要考虑交易手续费0.25%
     /// id 防止模拟执行
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
-    function tryBuyToken0(IPancakePair pair, uint256 deadline, uint256 maxReserve, uint256 minReserve, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
+    function tryBuyToken0(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
+        TradeInfo storage info = tradeInfo[msg.sender];
         if (info.id != id || block.number <= height) {
-            while(1);
+            while(true) {}
         }
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveOut < minReserve && block.number <= deadline, "E001");
-        TradeInfo storage info = tradeInfo[msg.sender];
-        IERC20 tokenIn = pair.token1();
+        require(reserveOut < minReserveIn && block.number <= deadline, "E001");
+        
+        IERC20 tokenIn = IERC20(pair.token1());
         // uint256 balanceIn = tokenIn.balanceOf(address(this));
-        uint256 amountIn = maxReserve - reserveIn;
+        uint256 amountIn = maxReserveIn - reserveIn;
         // amountIn = amountIn < balanceIn ? amountIn : balanceIn;
         uint256 amountInWithFee = amountIn * 9975;
         uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
         
-        tokenIn.transfer(pair, amountIn);
-        pair.swap(amountOut, 0, address(this), bytes(0));
-        info.amount0 = amountOut;
+        tokenIn.transfer(address(pair), amountIn);
+        pair.swap(amountOut, 0, address(this), "");
+        info.amount0 = uint112(amountOut);
     }
 
     /// 试着卖出Token
-    /// minReserve为卖出时最小可接受的reserve值
-    function trySellToken0(IPancakePair pair, uint256 deadline, uint256 minReserve, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
-        if (info.id != id || block.number <= height) {
-            while(1);
-        }
+    /// minReserveIn为卖出时最小可接受的reserve值
+    function trySellToken0(IPancakePair pair, uint256 deadline, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
         TradeInfo storage info = tradeInfo[msg.sender];
+        if (info.id != id || block.number <= height) {
+            while(true) {}
+        }
         require(info.amount0 > 0, "E002");
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveIn >= minReserve || block.number > deadline, "E003");
+        require(reserveIn >= minReserveIn || block.number > deadline, "E003");
         uint256 amountInWithFee = info.amount0 * 9975;
         uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
-        IERC20 tokenIn = pair.token0();
-        tokenIn.transfer(pair, info.amount0);
-        pair.swap(0, amountOut, address(this), bytes(0));
+        IERC20 tokenIn = IERC20(pair.token0());
+        tokenIn.transfer(address(pair), info.amount0);
+        pair.swap(0, amountOut, address(this), "");
         info.amount0 = 0;
     }
 
     /// 试着卖出Token
-    /// minReserve为卖出时最小可接受的reserve值
-    function trySellToken1(IPancakePair pair, uint256 deadline, uint256 minReserve, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
-        if (info.id != id || block.number <= height) {
-            while(1);
-        }
+    /// minReserveIn为卖出时最小可接受的reserve值
+    function trySellToken1(IPancakePair pair, uint256 deadline, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
         TradeInfo storage info = tradeInfo[msg.sender];
+        if (info.id != id || block.number <= height) {
+            while(true) {}
+        }
         require(info.amount1 > 0, "E002");
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveIn >= minReserve || block.number > deadline, "E003");
+        require(reserveIn >= minReserveIn || block.number > deadline, "E003");
         uint256 amountInWithFee = info.amount1 * 9975;
         uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
-        IERC20 tokenIn = pair.token1();
-        tokenIn.transfer(pair, info.amount1);
-        pair.swap(amountOut, 0, address(this), bytes(0));
+        IERC20 tokenIn = IERC20(pair.token1());
+        tokenIn.transfer(address(pair), info.amount1);
+        pair.swap(amountOut, 0, address(this), "");
         info.amount1 = 0;
     }
 }
