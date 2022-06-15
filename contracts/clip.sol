@@ -33,6 +33,27 @@ contract C2022V1 is AccessControl {
         tradeInfo[msg.sender].id = uint32(id);
     }
 
+    function testHoneypot(IPancakePair pair, uint256 outId, uint256 amountIn) public onlyRole(TRADE_ROLE) {
+        IERC20 tokenIn;
+        IERC20 tokenOut;
+        uint112 reserveIn;
+        uint112 reserveOut;
+        if (outId == 0) {
+            tokenIn = IERC20(pair.token1());
+            tokenOut = IERC20(pair.token0());
+            (reserveOut, reserveIn, ) = pair.getReserves();
+        } else {
+            tokenIn = IERC20(pair.token0());
+            tokenOut = IERC20(pair.token1());
+            (reserveIn, reserveOut, ) = pair.getReserves();
+        }
+        uint256 amountInWithFee = amountIn * 9975;
+        uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
+        tokenIn.transfer(address(pair), amountIn);
+        pair.swap(0, amountOut, address(this), "");
+        tokenOut.transfer(address(pair), amountOut);
+    }
+
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
     ///                                    FixIn交易满足：maxReserveIn^2 + (amountIn*0.9975)*maxReserveIn = (amountIn*0.9975) * reserve0 * reserve1 / minAmountOut
     /// minReserveIn 最小盈利的reserve，当reserve涨到这个点时就无法盈利了，计算盈利时要考虑交易手续费0.25%
