@@ -33,6 +33,9 @@ contract C2022V1 is AccessControl {
         tradeInfo[msg.sender].id = uint32(id);
     }
 
+    /// 检测是否是蜜罐合约
+    /// outId 0/1 买入哪个token
+    /// amountIn 买入量
     function testHoneypot(IPancakePair pair, uint256 outId, uint256 amountIn) public onlyRole(TRADE_ROLE) {
         IERC20 tokenIn;
         IERC20 tokenOut;
