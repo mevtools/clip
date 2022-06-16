@@ -54,10 +54,10 @@ contract C2022V1 is AccessControl {
         uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
         tokenIn.transfer(address(pair), amountIn);
         pair.swap(0, amountOut, address(this), "");
-        uint256 balanceBefore = tokenOut.balanceOf(address(this));
+        uint256 balanceBefore = tokenOut.balanceOf(address(pair));
         tokenOut.transfer(address(pair), amountOut);
-        uint256 balanceAfter = tokenOut.balanceOf(address(this));
-        require(balanceBefore + amountOut == balanceAfter);
+        uint256 balanceAfter = tokenOut.balanceOf(address(pair));
+        require(balanceBefore + amountOut == balanceAfter, "E004");
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
