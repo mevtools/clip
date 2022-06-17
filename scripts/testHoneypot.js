@@ -1,6 +1,8 @@
 const ethers = require("ethers");
 const clipABI = require("../contracts/clip.json");
 const pairs = require("./transfer.json");
+const Web3 = require('web3');
+const web3 = new Web3('http://localhost:8545');
 // const pancakeABI = require("../contracts/pancake.json");
 
 const clipInterface = new ethers.utils.Interface(clipABI);
@@ -28,18 +30,33 @@ const stableCoins = ["BUSD", "USDT", "USDC", "DAI", "TUSD"];
       0,
       ethers.utils.parseEther("1"),
     ]);
-    const response = await provider.send("debug_traceCall", [
-        {
+    // const response = await provider.send("debug_traceCall", [
+    //     {
+    //         "from": fromAddress,
+    //         "to": clipAddress,
+    //         "data": data,
+    //     },
+    //     "latest",
+    // ]);
+    // // console.log[response["failed"]];
+    // if(response.failed) {
+    //    console.log(i,"/" , len, " ", pairAddress);
+    // }
+    web3.currentProvider.send({
+        method: "debug_traceTransaction",
+        params: [ {
             "from": fromAddress,
             "to": clipAddress,
             "data": data,
         },
-        "latest",
-    ]);
-    // console.log[response["failed"]];
-    if(response.failed) {
-        console.log(i,"/" , len, " ", pairAddress);
-    }
+        "latest",],
+        jsonrpc: "2.0",
+        id: "2"
+    }, function (err, result) {
+        if(err == null && !result.failed) {
+            console.log(i,"/" , len, " ", pairAddress);
+        }
+    });
 
   }
 })();
