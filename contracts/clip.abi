@@ -1,4 +1,4 @@
-[
+const clipABI = `[
 	{
 		"inputs": [
 			{
@@ -453,4 +453,4 @@
 		"stateMutability": "view",
 		"type": "function"
 	}
-]
+]`;
