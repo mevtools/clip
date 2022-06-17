@@ -1,31 +1,3 @@
-/root/ke/clip/scripts/testHoneypot.js:45
-                console.log(pairAddress, pair.token0Address, token1Address);
-                                                             ^
-
-ReferenceError: token1Address is not defined
-    at /root/ke/clip/scripts/testHoneypot.js:45:62
-    at XMLHttpRequest.request.onreadystatechange (/root/ke/clip/scripts/node_modules/web3-providers-http/lib/index.js:98:13)
-    at XMLHttpRequestEventTarget.dispatchEvent (/root/ke/clip/scripts/node_modules/xhr2-cookies/dist/xml-http-request-event-target.js:34:22)
-    at XMLHttpRequest._setReadyState (/root/ke/clip/scripts/node_modules/xhr2-cookies/dist/xml-http-request.js:208:14)
-    at XMLHttpRequest._onHttpResponseEnd (/root/ke/clip/scripts/node_modules/xhr2-cookies/dist/xml-http-request.js:318:14)
-    at IncomingMessage.<anonymous> (/root/ke/clip/scripts/node_modules/xhr2-cookies/dist/xml-http-request.js:289:61)
-    at IncomingMessage.emit (events.js:326:22)
-    at endReadableNT (_stream_readable.js:1241:12)
-    at processTicksAndRejections (internal/process/task_queues.js:84:21)
-/root/ke/clip/scripts/testHoneypot.js:45
-                console.log(pairAddress, pair.token0Address, token1Address);
-                                                             ^
-
-ReferenceError: token1Address is not defined
-    at /root/ke/clip/scripts/testHoneypot.js:45:62
-    at XMLHttpRequest.request.onreadystatechange (/root/ke/clip/scripts/node_modules/web3-providers-http/lib/index.js:98:13)
-    at XMLHttpRequestEventTarget.dispatchEvent (/root/ke/clip/scripts/node_modules/xhr2-cookies/dist/xml-http-request-event-target.js:34:22)
-    at XMLHttpRequest._setReadyState (/root/ke/clip/scripts/node_modules/xhr2-cookies/dist/xml-http-request.js:208:14)
-    at XMLHttpRequest._onHttpResponseEnd (/root/ke/clip/scripts/node_modules/xhr2-cookies/dist/xml-http-request.js:318:14)
-    at IncomingMessage.<anonymous> (/root/ke/clip/scripts/node_modules/xhr2-cookies/dist/xml-http-request.js:289:61)
-    at IncomingMessage.emit (events.js:326:22)
-    at endReadableNT (_stream_readable.js:1241:12)
-    at processTicksAndRejections (internal/process/task_queues.js:84:21)
 0xfff6588fa0ca5df2492f4783761821522a864483 0x241f7a47e092533748af6555950696c36a5b6fff 0x55d398326f99059ff775485246999027b3197955
 0xff8c8fef9078daa716a76b25b1f415046b2f067b 0x14ae62c2068cbd444ec9e64677ec7acfff5fcfcf 0x55d398326f99059ff775485246999027b3197955
 0xfe6d963f4fbf2978f53a75247a313704afd90a23 0x6c43f7d22e20311282bd047e17f7ca91da5a8cf9 0xe9e7cea3dedca5984780bafc599bd69add087d56
