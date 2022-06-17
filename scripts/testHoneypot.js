@@ -1,6 +1,7 @@
 const ethers = require("ethers");
 const clipABI = require("../contracts/clip.json");
 const pairs = require("./transfer.json");
+const fs = require( "fs" );
 const Web3 = require('web3');
 const web3 = new Web3('http://localhost:8545');
 // const pancakeABI = require("../contracts/pancake.json");
@@ -29,7 +30,7 @@ const testPair = async (l, r) => {
             0,
             ethers.utils.parseEther("1"),
         ]);
-        let a = await web3.currentProvider.send({
+        web3.currentProvider.send({
             method: "debug_traceCall",
             params: [ {
                 "from": fromAddress,
@@ -40,9 +41,12 @@ const testPair = async (l, r) => {
             jsonrpc: "2.0",
             id: "2"
         }, function (err, result) {
-            console.log(i);
+            console.log(pair+",");
             if(err == null && result.result.failed == false) {
                 console.log(i,"/" , len, " ", pairAddress);
+            }
+            if(err == null) {
+                fs.appendFileSync('./nullpair.json', JSON.stringify(pair) + ",");
             }
         });
     }
@@ -50,7 +54,7 @@ const testPair = async (l, r) => {
 
 (async () => {
     let len = pairs.length;
-    for(var i = 0; i < len; i += 10) {
+    for(var i = 0; i < 10; i += 10) {
         var r = i + 10;
         if(r > len) {
             r = len;
