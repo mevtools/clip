@@ -126,6 +126,9 @@ contract C2022V1 is AccessControl {
 
     /// 试着卖出Token
     /// minReserveIn为卖出时最小可接受的reserve值
+    /// minReserveIn 可设置为maxReserveIn+reserveIn
+    /// 不断发送交易，直到该交易成功
+    /// 如果发现被夹交易已上链，则发送个minReserveIn小的交易使能够顺利卖出
     function trySellToken0(IPancakePair pair, uint256 deadline, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
         TradeInfo storage info = tradeInfo[msg.sender];
         if (info.id != id || block.number <= height) {
