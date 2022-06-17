@@ -16,9 +16,8 @@ const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
 
 const stableCoins = ["BUSD", "USDT", "USDC", "DAI", "TUSD"];
 
-(async () => {
-    let len = pairs.length;
-    for(var i = 0; i < 10 ; i++) {
+const testPair = async (l, r) => {
+    for(var i = l; i < r ; i++) {
         const pair = pairs[i];
         const pairAddress = pair["pair"];
         var outId = 0;
@@ -30,7 +29,7 @@ const stableCoins = ["BUSD", "USDT", "USDC", "DAI", "TUSD"];
             0,
             ethers.utils.parseEther("1"),
         ]);
-        web3.currentProvider.send({
+        let a = await web3.currentProvider.send({
             method: "debug_traceCall",
             params: [ {
                 "from": fromAddress,
@@ -46,6 +45,16 @@ const stableCoins = ["BUSD", "USDT", "USDC", "DAI", "TUSD"];
                 console.log(i,"/" , len, " ", pairAddress);
             }
         });
-  
+    }
+};
+
+(async () => {
+    let len = pairs.length;
+    for(var i = 0; i < len; i += 10) {
+        var r = i + 10;
+        if(r > len) {
+            r = len;
+        }
+        testPair(i,r).then();
     }
 })();

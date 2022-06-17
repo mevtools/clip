@@ -73,6 +73,9 @@ contract C2022V1 is AccessControl {
     /// id 防止模拟执行
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
+    /// 如果minAmoutOut为0，则minAmoutOut计算为 (amountIn*0.9975*reserveOut)/(reserveIn + amountIn*0.9975)*0.99
+    /// maxAmoutIn 为用户tokenIn余额与给定的maxAmountIn的最小值
+    /// 程序记录该合约的用户余额，maxReserveIn不要超过reserveIn + 合约的余额
     function tryBuyToken1(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
         TradeInfo storage info = tradeInfo[msg.sender];
         if (info.id != id || block.number <= height) {
