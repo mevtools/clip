@@ -1,5 +1,6 @@
 const ethers = require("ethers");
-const clipABI = require("../contracts/clip.abi");
+const clipABI = require("../contracts/clip.json");
+console.log(clipABI);
 
 const clipInterface = new ethers.utils.Interface(clipABI);
 const fromAddress = "0xA2cA1241A01B2fE1A9B56765aC66C1a13F131314";
