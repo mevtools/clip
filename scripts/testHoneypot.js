@@ -15,18 +15,18 @@ const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
 const stableCoins = ["BUSD", "USDT", "USDC", "DAI", "TUSD"];
 
 (async () => {
-  var idx = 0;
   const len = pairs.length;
-  pairs.forEach(async (pair) => {
-      const pairAddress = pair["pair"];
-      var outId = 0;
-      if (pair["token0Symbol"] in stableCoins) {
-          outId = 1;
-      }
-      const data = clipInterface.encodeFunctionData("testHoneypot", [
-        pairAddress,
-        0,
-        ethers.utils.parseEther("1"),
+  for(var i = 0; i < len; i++) {
+    const pair = pairs[i];
+    const pairAddress = pair["pair"];
+    var outId = 0;
+    if (pair["token0Symbol"] in stableCoins) {
+        outId = 1;
+    }
+    const data = clipInterface.encodeFunctionData("testHoneypot", [
+      pairAddress,
+      0,
+      ethers.utils.parseEther("1"),
     ]);
     const response = await provider.send("debug_traceCall", [
         {
@@ -36,10 +36,10 @@ const stableCoins = ["BUSD", "USDT", "USDC", "DAI", "TUSD"];
         },
         "latest",
     ]);
+    // console.log[response["failed"]];
     if(response.failed) {
-        console.log(idx,"/" , len, " ", pairAddress);
+        console.log(i,"/" , len, " ", pairAddress);
     }
-    idx += 1;
 
-  });
+  }
 })();
