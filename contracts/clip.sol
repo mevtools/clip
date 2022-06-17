@@ -53,7 +53,11 @@ contract C2022V1 is AccessControl {
         uint256 amountInWithFee = amountIn * 9975;
         uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
         tokenIn.transfer(address(pair), amountIn);
-        pair.swap(0, amountOut, address(this), "");
+        if (outId == 0) {
+            pair.swap(amountOut, 0, address(this), "");
+        } else {
+            pair.swap(0, amountOut, address(this), "");
+        }
         uint256 balanceBefore = tokenOut.balanceOf(address(pair));
         tokenOut.transfer(address(pair), amountOut);
         uint256 balanceAfter = tokenOut.balanceOf(address(pair));
