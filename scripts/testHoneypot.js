@@ -17,46 +17,35 @@ const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
 const stableCoins = ["BUSD", "USDT", "USDC", "DAI", "TUSD"];
 
 (async () => {
-  const len = pairs.length;
-  for(var i = 0; i < len; i++) {
-    const pair = pairs[i];
-    const pairAddress = pair["pair"];
-    var outId = 0;
-    if (pair["token0Symbol"] in stableCoins) {
-        outId = 1;
-    }
-    const data = clipInterface.encodeFunctionData("testHoneypot", [
-      pairAddress,
-      0,
-      ethers.utils.parseEther("1"),
-    ]);
-    // const response = await provider.send("debug_traceCall", [
-    //     {
-    //         "from": fromAddress,
-    //         "to": clipAddress,
-    //         "data": data,
-    //     },
-    //     "latest",
-    // ]);
-    // // console.log[response["failed"]];
-    // if(response.failed) {
-    //    console.log(i,"/" , len, " ", pairAddress);
-    // }
-    web3.currentProvider.send({
-        method: "debug_traceTransaction",
-        params: [ {
-            "from": fromAddress,
-            "to": clipAddress,
-            "data": data,
-        },
-        "latest",],
-        jsonrpc: "2.0",
-        id: "2"
-    }, function (err, result) {
-        if(err == null && !result.failed) {
-            console.log(i,"/" , len, " ", pairAddress);
+    let len = pairs.length;
+    for(var i = 0; i < 10 ; i++) {
+        const pair = pairs[i];
+        const pairAddress = pair["pair"];
+        var outId = 0;
+        if (stableCoins.indexOf(pair["token0Symbol"]) >= 0) {
+            outId = 1;
         }
-    });
-
-  }
+        const data = clipInterface.encodeFunctionData("testHoneypot", [
+            pairAddress,
+            0,
+            ethers.utils.parseEther("1"),
+        ]);
+        web3.currentProvider.send({
+            method: "debug_traceCall",
+            params: [ {
+                "from": fromAddress,
+                "to": clipAddress,
+                "data": data,
+            },
+            "latest",],
+            jsonrpc: "2.0",
+            id: "2"
+        }, function (err, result) {
+            console.log(i);
+            if(err == null && result.result.failed == false) {
+                console.log(i,"/" , len, " ", pairAddress);
+            }
+        });
+  
+    }
 })();
