@@ -14,6 +14,7 @@ const data1 = clipInterface.encodeFunctionData("testHoneypot", [
 
 (async () => {
   const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+  for(i = 0; i < 100; ++i) {
   const response = await provider.send("debug_traceCall", [
     {
       "from": fromAddress,
@@ -22,5 +23,6 @@ const data1 = clipInterface.encodeFunctionData("testHoneypot", [
     },
     "latest",
   ]);
-  console.log(response);
+//   console.log(response);
+  }
 })();
