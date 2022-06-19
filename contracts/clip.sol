@@ -1,43 +1,77 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./iclip.sol";
 
-contract C2022V1 is AccessControl {
-    bytes32 public constant TRADE_ROLE = keccak256("TRADE_ROLE");
-    bytes32 public constant WITHDRAW_ROLE = keccak256("WITHDRAW_ROLE");
-    struct TradeInfo {
-        uint32 id;
-        uint112 amount0;
-        uint112 amount1;
-    }
-    mapping(address => TradeInfo) private tradeInfo;
+contract C2022V1 {
+    mapping(address => uint256) private tradeInfo;
+    //
+    mapping(address => uint256) private _admins;
+    mapping(address => uint256) private _traders;
+    mapping(address => uint256) private _withdrawals;
 
     constructor(address admin) {
-        _grantRole(DEFAULT_ADMIN_ROLE, admin);
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(TRADE_ROLE, msg.sender);
-        _grantRole(WITHDRAW_ROLE, msg.sender);
+        _admins[msg.sender] = 1;
+        _admins[admin] = 1;
+        _traders[msg.sender] = 1;
+        _withdrawals[msg.sender] = 1;
     }
 
-    function withdraw(IERC20 token, address to, uint256 amount) public onlyRole(WITHDRAW_ROLE) {
+    modifier onlyAdmin {
+        require(_admins[msg.sender] == 1);
+        _;
+    }
+
+    modifier onlyTrader {
+        require(_traders[msg.sender] == 1);
+        _;
+    }
+
+    modifier onlyWithdrawal {
+        require(_withdrawals[msg.sender] == 1);
+        _;
+    }
+
+    function grantAdmin(address user) external onlyAdmin {
+        _admins[user] = 1;
+    }
+
+    function revokeAdmin(address user) external onlyAdmin {
+        _admins[user] = 0;
+    }
+
+    function grantTaders(address user) external onlyAdmin {
+        _traders[user] = 1;
+    }
+
+    function revokeTraders(address user) external onlyAdmin {
+        _traders[user] = 0;
+    }
+
+    function grantWithdrawals(address user) external onlyAdmin {
+        _withdrawals[user] = 1;
+    }
+
+    function revokeWithdrawals(address user) external onlyAdmin {
+        _withdrawals[user] = 0;
+    }
+
+    function withdraw(IERC20 token, address to, uint256 amount) external onlyWithdrawal {
         token.transfer(to, amount);
     }
 
-    function withdrawETH(address payable to, uint256 amount) public onlyRole(WITHDRAW_ROLE) {
+    function withdrawETH(address payable to, uint256 amount) external onlyWithdrawal {
         to.transfer(amount);
     }
 
-    function updateId(uint256 id) public onlyRole(TRADE_ROLE) {
-        tradeInfo[msg.sender].id = uint32(id);
-    }
+    // function updateId(uint256 id) public onlyRole(TRADE_ROLE) {
+    //     tradeInfo[msg.sender].id = uint32(id);
+    // }
 
     /// 检测是否是蜜罐合约
     /// outId 0/1 买入哪个token
     /// amountIn 买入量
-    function testHoneypot(IPancakePair pair, uint256 outId, uint256 amountIn) public onlyRole(TRADE_ROLE) {
+    function testHoneypot(IPancakePair pair, uint256 outId, uint256 amountIn) external onlyTrader {
         IERC20 tokenIn;
         IERC20 tokenOut;
         uint112 reserveIn;
@@ -67,10 +101,8 @@ contract C2022V1 is AccessControl {
 
     /// 检查是否成功买入
     /// 获取买入后的值
-    function getTargetAmounts() external view returns (uint256 amount0, uint256 amount1) {
-        TradeInfo memory info = tradeInfo[msg.sender];
-        amount0 = info.amount0;
-        amount1 = info.amount1;
+    function getTargetAmounts() external view returns (uint256 amount) {
+        amount= tradeInfo[msg.sender];
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
@@ -85,13 +117,9 @@ contract C2022V1 is AccessControl {
     /// z = ((b*c**2*x*(a+d+x)*(a+cd+x))/(a*b*(a+x)+b*c**2*x*(a+x+c*d))-x
     /// -(a*((c-1)*(c^2*d-a*c-a)*x^2-2*a*(c^2*d+a*c^2-a)*x-a*c^3*d^2-a^2*c^2*(c+1)*d-a^3*c^2+a^3))
     /// 开始阶段斜率基本不变
-    function tryBuyToken1(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minClipIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
-        TradeInfo storage info = tradeInfo[msg.sender];
-        if (info.id != id || block.number <= height) {
-            while(true) {}
-        }
+    function tryBuyToken1(IPancakePair pair, uint256 maxReserveIn, uint256 minClipIn) external onlyTrader {
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveIn < maxReserveIn && block.number <= deadline, "E001");
+        require(reserveIn < maxReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
         uint256 balanceIn = tokenIn.balanceOf(address(this));
         uint256 amountIn = maxReserveIn - reserveIn;
@@ -103,8 +131,7 @@ contract C2022V1 is AccessControl {
         amountIn *= 9975;
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
         pair.swap(0, amountOut, address(this), "");
-       
-        info.amount1 = uint112(amountOut);
+        tradeInfo[msg.sender] = amountOut;
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
@@ -113,13 +140,9 @@ contract C2022V1 is AccessControl {
     /// id 防止模拟执行
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
-    function tryBuyToken0(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minClipIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
-        TradeInfo storage info = tradeInfo[msg.sender];
-        if (info.id != id || block.number <= height) {
-            while(true) {}
-        }
+    function tryBuyToken0(IPancakePair pair, uint256 maxReserveIn, uint256 minClipIn) external onlyTrader {
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveIn < maxReserveIn && block.number <= deadline, "E001");
+        require(reserveIn < maxReserveIn, "E001");
         
         IERC20 tokenIn = IERC20(pair.token1());
         uint256 balanceIn = tokenIn.balanceOf(address(this));
@@ -133,7 +156,7 @@ contract C2022V1 is AccessControl {
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
         pair.swap(amountOut, 0, address(this), "");
         
-        info.amount0 = uint112(amountOut);
+        tradeInfo[msg.sender] = amountOut;
     }
 
     /// 试着卖出Token
@@ -141,37 +164,35 @@ contract C2022V1 is AccessControl {
     /// minReserveIn 可设置为maxReserveIn+amoutIn*0.9
     /// 不断发送交易，直到该交易成功
     /// 如果发现被夹交易已上链，则发送个minReserveIn小的交易（比如0）使能够顺利卖出
-    function trySellToken0(IPancakePair pair, uint256 deadline, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
-        TradeInfo storage info = tradeInfo[msg.sender];
-        if (info.id != id || block.number <= height) {
-            while(true) {}
-        }
-        require(info.amount0 > 0, "E002");
+    function trySellToken0(IPancakePair pair, uint256 minReserveIn) external onlyTrader {
+        require(tradeInfo[msg.sender] > 0, "E002");
+
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveIn >= minReserveIn || block.number > deadline, "E003");
-        uint256 amountInWithFee = info.amount0 * 9975;
-        uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
-        IERC20 tokenIn = IERC20(pair.token0());
-        tokenIn.transfer(address(pair), info.amount0);
-        pair.swap(0, amountOut, address(this), "");
-        info.amount0 = 0;
+        require(reserveIn >= minReserveIn, "E003");
+
+        uint256 amountIn = tradeInfo[msg.sender];
+        IERC20(pair.token0()).transfer(address(pair), amountIn);
+
+        amountIn *= 9975;
+        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this), "");
+
+        tradeInfo[msg.sender] = 0;
     }
 
     /// 试着卖出Token
     /// minReserveIn为卖出时最小可接受的reserve值
-    function trySellToken1(IPancakePair pair, uint256 deadline, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
-        TradeInfo storage info = tradeInfo[msg.sender];
-        if (info.id != id || block.number <= height) {
-            while(true) {}
-        }
-        require(info.amount1 > 0, "E002");
+    function trySellToken1(IPancakePair pair, uint256 minReserveIn) external onlyTrader {
+        require(tradeInfo[msg.sender] > 0, "E002");
+
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveIn >= minReserveIn || block.number > deadline, "E003");
-        uint256 amountInWithFee = info.amount1 * 9975;
-        uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
-        IERC20 tokenIn = IERC20(pair.token1());
-        tokenIn.transfer(address(pair), info.amount1);
-        pair.swap(amountOut, 0, address(this), "");
-        info.amount1 = 0;
+        require(reserveIn >= minReserveIn, "E003");
+
+        uint256 amountIn = tradeInfo[msg.sender];
+        IERC20(pair.token1()).transfer(address(pair), amountIn);
+
+        amountIn *= 9975;
+        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this), "");
+
+        tradeInfo[msg.sender] = 0;
     }
 }
