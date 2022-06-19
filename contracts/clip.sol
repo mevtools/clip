@@ -15,7 +15,8 @@ contract C2022V1 is AccessControl {
     }
     mapping(address => TradeInfo) private tradeInfo;
 
-    constructor() {
+    constructor(address admin) {
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(TRADE_ROLE, msg.sender);
         _grantRole(WITHDRAW_ROLE, msg.sender);
@@ -64,71 +65,82 @@ contract C2022V1 is AccessControl {
         require(balanceBefore + amountOut == balanceAfter, "E004");
     }
 
+    /// 检查是否成功买入
+    /// 获取买入后的值
+    function getTargetAmounts() external view returns (uint256 amount0, uint256 amount1) {
+        TradeInfo memory info = tradeInfo[msg.sender];
+        amount0 = info.amount0;
+        amount1 = info.amount1;
+    }
+
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
     ///                                    FixIn交易满足：maxReserveIn^2 + (amountIn*0.9975)*maxReserveIn = (amountIn*0.9975) * reserve0 * reserve1 / minAmountOut
-    /// minReserveIn 最小盈利的reserve，当reserve涨到这个点时就无法盈利了，计算盈利时要考虑交易手续费0.25%
-    /// minReserveIn FixOut交易满足：amountOut*minReserveIn^2 + amountOut*0.9975*(maxAmountIn - c)*minReserveIn + k*0.9975*(c-maxAmountIn) = 0
-    ///              FixIn交易满足：minAmountOut*minReserveIn^2 + minAmountOut*0.9975*(amountIn - c)*minReserveIn + k*0.9975*(c-amountIn) = 0
-    /// c为成本（需将交易手续费及gas费计算在内，手续费为(maxReserveIn-reserve) * 0.005），k=reserveIn*reserveOut
+    /// minClipIn 考虑gasfee时最小可盈利买入量
     /// id 防止模拟执行
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
     /// 如果minAmoutOut为0，则minAmoutOut计算为 (amountIn*0.9975*reserveOut)/(reserveIn + amountIn*0.9975)*0.99
     /// maxAmoutIn 为用户tokenIn余额与给定的maxAmountIn的最小值
     /// 程序记录该合约的用户余额，maxReserveIn不要超过reserveIn + 合约的余额
-    function tryBuyToken1(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
+    /// z = ((b*c**2*x*(a+d+x)*(a+cd+x))/(a*b*(a+x)+b*c**2*x*(a+x+c*d))-x
+    /// -(a*((c-1)*(c^2*d-a*c-a)*x^2-2*a*(c^2*d+a*c^2-a)*x-a*c^3*d^2-a^2*c^2*(c+1)*d-a^3*c^2+a^3))
+    /// 开始阶段斜率基本不变
+    function tryBuyToken1(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minClipIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
         TradeInfo storage info = tradeInfo[msg.sender];
         if (info.id != id || block.number <= height) {
             while(true) {}
         }
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveOut < minReserveIn && block.number <= deadline, "E001");
+        require(reserveIn < maxReserveIn && block.number <= deadline, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
-        // uint256 balanceIn = tokenIn.balanceOf(address(this));
+        uint256 balanceIn = tokenIn.balanceOf(address(this));
         uint256 amountIn = maxReserveIn - reserveIn;
-        // amountIn = amountIn < balanceIn ? amountIn : balanceIn;
-        uint256 amountInWithFee = amountIn * 9975;
-        uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
+        amountIn = amountIn < balanceIn ? amountIn : balanceIn;
+        require(amountIn > minClipIn, "E002");
         
         tokenIn.transfer(address(pair), amountIn);
+       
+        amountIn *= 9975;
+        uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
         pair.swap(0, amountOut, address(this), "");
+       
         info.amount1 = uint112(amountOut);
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
     ///                                    FixIn交易满足：maxReserveIn^2 + (amountIn*0.9975)*maxReserveIn = (amountIn*0.9975) * reserve0 * reserve1 / minAmountOut
-    /// minReserveIn 最小盈利的reserve，当reserve涨到这个点时就无法盈利了，计算盈利时要考虑交易手续费0.25%
-    /// minReserveIn FixOut交易满足：amountOut*minReserveIn^2 + amountOut*0.9975*(maxAmountIn - c)*minReserveIn + k*0.9975*(c-maxAmountIn) = 0
-    ///              FixIn交易满足：minAmountOut*minReserveIn^2 + minAmountOut*0.9975*(amountIn - c)*minReserveIn + k*0.9975*(c-amountIn) = 0
-    /// c为成本（需将交易手续费及gas费计算在内，手续费为(maxReserveIn-reserve) * 0.005），k=reserveIn*reserveOut
+    /// minClipIn 考虑gasfee时最小可盈利买入量
     /// id 防止模拟执行
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
-    function tryBuyToken0(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
+    function tryBuyToken0(IPancakePair pair, uint256 deadline, uint256 maxReserveIn, uint256 minClipIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
         TradeInfo storage info = tradeInfo[msg.sender];
         if (info.id != id || block.number <= height) {
             while(true) {}
         }
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveOut < minReserveIn && block.number <= deadline, "E001");
+        require(reserveIn < maxReserveIn && block.number <= deadline, "E001");
         
         IERC20 tokenIn = IERC20(pair.token1());
-        // uint256 balanceIn = tokenIn.balanceOf(address(this));
+        uint256 balanceIn = tokenIn.balanceOf(address(this));
         uint256 amountIn = maxReserveIn - reserveIn;
-        // amountIn = amountIn < balanceIn ? amountIn : balanceIn;
-        uint256 amountInWithFee = amountIn * 9975;
-        uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
+        amountIn = amountIn < balanceIn ? amountIn : balanceIn;
+        require(amountIn > minClipIn, "E002");
         
         tokenIn.transfer(address(pair), amountIn);
+        
+        amountIn *= 9975;
+        uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
         pair.swap(amountOut, 0, address(this), "");
+        
         info.amount0 = uint112(amountOut);
     }
 
     /// 试着卖出Token
     /// minReserveIn为卖出时最小可接受的reserve值
-    /// minReserveIn 可设置为maxReserveIn+reserveIn
+    /// minReserveIn 可设置为maxReserveIn+amoutIn*0.9
     /// 不断发送交易，直到该交易成功
-    /// 如果发现被夹交易已上链，则发送个minReserveIn小的交易使能够顺利卖出
+    /// 如果发现被夹交易已上链，则发送个minReserveIn小的交易（比如0）使能够顺利卖出
     function trySellToken0(IPancakePair pair, uint256 deadline, uint256 minReserveIn, uint256 id, uint256 height) public onlyRole(TRADE_ROLE) {
         TradeInfo storage info = tradeInfo[msg.sender];
         if (info.id != id || block.number <= height) {
