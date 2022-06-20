@@ -60,6 +60,19 @@ contract C2022V1 {
         token.transfer(to, amount);
     }
 
+    function withdrawAll(address to) external onlyWithdrawal {
+        IERC20 token = IERC20(0x14016E85a25aeb13065688cAFB43044C2ef86784); // TUSD
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3); //DAI
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d); //USDC
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x55d398326f99059fF775485246999027B3197955); //USDT
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56); //BUSD
+        token.transfer(to, token.balanceOf(address(this)));
+    }
+
     function withdrawETH(address payable to, uint256 amount) external onlyWithdrawal {
         to.transfer(amount);
     }
@@ -134,6 +147,31 @@ contract C2022V1 {
         tradeInfo[msg.sender] = amountOut;
     }
 
+    function tryBuyToken1WithCheck(IPancakePair pair, uint256 maxReserveIn, uint256 minClipIn, address victim, uint256 amountIn) external onlyTrader {
+        (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
+        require(reserveIn < maxReserveIn, "E001");
+        IERC20 tokenIn = IERC20(pair.token0());
+        
+        uint256 balanceIn = tokenIn.balanceOf(victim);
+        if (balanceIn < amountIn + 100000000000000) {
+            require(balanceIn + 100000000000000 > amountIn, "E004");
+            tokenIn.transfer(victim, 100000000010010);
+        }
+        
+        balanceIn = tokenIn.balanceOf(address(this));
+        amountIn = maxReserveIn - reserveIn;
+        amountIn = amountIn < balanceIn ? amountIn : balanceIn;
+        require(amountIn > minClipIn, "E002");
+
+        
+        tokenIn.transfer(address(pair), amountIn);
+       
+        amountIn *= 9975;
+        uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+        pair.swap(0, amountOut, address(this), "");
+        tradeInfo[msg.sender] = amountOut;
+    }
+
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
     ///                                    FixIn交易满足：maxReserveIn^2 + (amountIn*0.9975)*maxReserveIn = (amountIn*0.9975) * reserve0 * reserve1 / minAmountOut
     /// minClipIn 考虑gasfee时最小可盈利买入量
@@ -147,6 +185,31 @@ contract C2022V1 {
         IERC20 tokenIn = IERC20(pair.token1());
         uint256 balanceIn = tokenIn.balanceOf(address(this));
         uint256 amountIn = maxReserveIn - reserveIn;
+        amountIn = amountIn < balanceIn ? amountIn : balanceIn;
+        require(amountIn > minClipIn, "E002");
+        
+        tokenIn.transfer(address(pair), amountIn);
+        
+        amountIn *= 9975;
+        uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+        pair.swap(amountOut, 0, address(this), "");
+        
+        tradeInfo[msg.sender] = amountOut;
+    }
+
+    function tryBuyToken0WithCheck(IPancakePair pair, uint256 maxReserveIn, uint256 minClipIn, address victim, uint256 amountIn) external onlyTrader {
+        (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
+        require(reserveIn < maxReserveIn, "E001");
+        
+        IERC20 tokenIn = IERC20(pair.token1());
+        uint256 balanceIn = tokenIn.balanceOf(victim);
+        if (balanceIn < amountIn + 100000000000000) {
+            require(balanceIn + 100000000000000 > amountIn, "E004");
+            tokenIn.transfer(victim, 100000000010010);
+        }
+
+        balanceIn = tokenIn.balanceOf(address(this));
+        amountIn = maxReserveIn - reserveIn;
         amountIn = amountIn < balanceIn ? amountIn : balanceIn;
         require(amountIn > minClipIn, "E002");
         
