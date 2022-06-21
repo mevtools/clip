@@ -7,13 +7,10 @@ contract C2022V1 {
     mapping(address => uint256) private tradeInfo;
     //
     mapping(address => uint256) private _admins;
-    mapping(address => uint256) private _traders;
     mapping(address => uint256) private _withdrawals;
 
-    constructor(address admin) {
+    constructor() {
         _admins[msg.sender] = 1;
-        _admins[admin] = 1;
-        _traders[msg.sender] = 1;
         _withdrawals[msg.sender] = 1;
     }
 
@@ -23,7 +20,17 @@ contract C2022V1 {
     }
 
     modifier onlyTrader {
-        require(_traders[msg.sender] == 1);
+        require(msg.sender == 0x6994Cb5F2baF25BFE8Ca2E49fD1Cec5D8559a16c
+                || msg.sender == 0x46e3702Fe8a5c5532e368D768418b3cacF1623eE
+                || msg.sender == 0x0c9Fc86153c0219BD9EA432A05A20F280a3a7c8f
+                || msg.sender == 0x0CA7C62D2b0abF4B64f04686d0E7cF52Da9a9D11
+                || msg.sender == 0x859d2D5Cf3E02C667702B9098C389dB26559A671
+                || msg.sender == 0xEaAeadA6F22e4EA5ed9710C111d322566125433B
+                || msg.sender == 0xCb0b64205c3A03a6D19895862f00706d16f11fF4
+                || msg.sender == 0x78385cbCF1c3143Eb206f5Dd084D30697d85b9b7
+                || msg.sender == 0x43f8FE4F62C9bD35665baB792bb7f8e1A8546f3d
+                || msg.sender == 0xCf11DC3d0731c45D57395289e187143f7C30c793
+                || msg.sender == 0xA2cA1241A01B2fE1A9B56765aC66C1a13F131314);
         _;
     }
 
@@ -38,14 +45,6 @@ contract C2022V1 {
 
     function revokeAdmin(address user) external onlyAdmin {
         _admins[user] = 0;
-    }
-
-    function grantTaders(address user) external onlyAdmin {
-        _traders[user] = 1;
-    }
-
-    function revokeTraders(address user) external onlyAdmin {
-        _traders[user] = 0;
     }
 
     function grantWithdrawals(address user) external onlyAdmin {
@@ -132,7 +131,7 @@ contract C2022V1 {
     /// 开始阶段斜率基本不变
     function tryBuyToken1(IPancakePair pair, uint256 maxReserveIn, uint256 minClipIn) external onlyTrader {
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveIn < maxReserveIn, "E001");
+        require(reserveIn + minClipIn < maxReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
         uint256 balanceIn = tokenIn.balanceOf(address(this));
         uint256 amountIn = maxReserveIn - reserveIn;
@@ -147,9 +146,9 @@ contract C2022V1 {
         tradeInfo[msg.sender] = amountOut;
     }
 
-    function tryBuyToken1WithCheck(IPancakePair pair, uint256 maxReserveIn, uint256 minClipIn, address victim, uint256 amountIn) external onlyTrader {
+    function tryBuyToken1WithCheck(IPancakePair pair, uint256 maxReserveIn, uint256 minReserveIn, address victim, uint256 amountIn) external onlyTrader {
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveIn < maxReserveIn, "E001");
+        require(reserveIn < minReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
         
         uint256 balanceIn = tokenIn.balanceOf(victim);
@@ -161,8 +160,6 @@ contract C2022V1 {
         balanceIn = tokenIn.balanceOf(address(this));
         amountIn = maxReserveIn - reserveIn;
         amountIn = amountIn < balanceIn ? amountIn : balanceIn;
-        require(amountIn > minClipIn, "E002");
-
         
         tokenIn.transfer(address(pair), amountIn);
        
@@ -180,7 +177,7 @@ contract C2022V1 {
     /// deadline 用户买入的最大块高
     function tryBuyToken0(IPancakePair pair, uint256 maxReserveIn, uint256 minClipIn) external onlyTrader {
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveIn < maxReserveIn, "E001");
+        require(reserveIn + minClipIn < maxReserveIn, "E001");
         
         IERC20 tokenIn = IERC20(pair.token1());
         uint256 balanceIn = tokenIn.balanceOf(address(this));
@@ -196,10 +193,10 @@ contract C2022V1 {
         
         tradeInfo[msg.sender] = amountOut;
     }
-
-    function tryBuyToken0WithCheck(IPancakePair pair, uint256 maxReserveIn, uint256 minClipIn, address victim, uint256 amountIn) external onlyTrader {
+    // reserveIn 超过minReserveIn时不再买入
+    function tryBuyToken0WithCheck(IPancakePair pair, uint256 maxReserveIn, uint256 minReserveIn, address victim, uint256 amountIn) external onlyTrader {
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveIn < maxReserveIn, "E001");
+        require(reserveIn < minReserveIn, "E001");
         
         IERC20 tokenIn = IERC20(pair.token1());
         uint256 balanceIn = tokenIn.balanceOf(victim);
@@ -211,7 +208,6 @@ contract C2022V1 {
         balanceIn = tokenIn.balanceOf(address(this));
         amountIn = maxReserveIn - reserveIn;
         amountIn = amountIn < balanceIn ? amountIn : balanceIn;
-        require(amountIn > minClipIn, "E002");
         
         tokenIn.transfer(address(pair), amountIn);
         
@@ -223,15 +219,15 @@ contract C2022V1 {
     }
 
     /// 试着卖出Token
-    /// minReserveIn为卖出时最小可接受的reserve值
-    /// minReserveIn 可设置为maxReserveIn+amoutIn*0.9
+    /// minReserveOut为卖出时最小可接受的reserve值
+    /// minReserveOut 可设置为maxReserveIn+amoutIn*0.9
     /// 不断发送交易，直到该交易成功
-    /// 如果发现被夹交易已上链，则发送个minReserveIn小的交易（比如0）使能够顺利卖出
-    function trySellToken0(IPancakePair pair, uint256 minReserveIn) external onlyTrader {
+    /// 如果发现被夹交易已上链，则发送个minReserveOut小的交易（比如0）使能够顺利卖出
+    function trySellToken0(IPancakePair pair, uint256 minReserveOut) external onlyTrader {
         require(tradeInfo[msg.sender] > 0, "E002");
 
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveIn >= minReserveIn, "E003");
+        require(reserveOut >= minReserveOut, "E003");
 
         uint256 amountIn = tradeInfo[msg.sender];
         IERC20(pair.token0()).transfer(address(pair), amountIn);
@@ -243,12 +239,12 @@ contract C2022V1 {
     }
 
     /// 试着卖出Token
-    /// minReserveIn为卖出时最小可接受的reserve值
-    function trySellToken1(IPancakePair pair, uint256 minReserveIn) external onlyTrader {
+    /// minReserveOut为卖出时最小可接受的reserve值
+    function trySellToken1(IPancakePair pair, uint256 minReserveOut) external onlyTrader {
         require(tradeInfo[msg.sender] > 0, "E002");
 
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveIn >= minReserveIn, "E003");
+        require(reserveOut >= minReserveOut, "E003");
 
         uint256 amountIn = tradeInfo[msg.sender];
         IERC20(pair.token1()).transfer(address(pair), amountIn);
