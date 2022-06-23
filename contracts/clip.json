@@ -20,19 +20,6 @@
 				"type": "address"
 			}
 		],
-		"name": "grantTaders",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			}
-		],
 		"name": "grantWithdrawals",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -59,19 +46,6 @@
 				"type": "address"
 			}
 		],
-		"name": "revokeTraders",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			}
-		],
 		"name": "revokeWithdrawals",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -85,9 +59,22 @@
 				"type": "address"
 			},
 			{
-				"internalType": "uint256",
-				"name": "outId",
-				"type": "uint256"
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			}
+		],
+		"name": "sellToken0",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IPancakePair",
+				"name": "pair",
+				"type": "address"
 			},
 			{
 				"internalType": "uint256",
@@ -95,7 +82,7 @@
 				"type": "uint256"
 			}
 		],
-		"name": "testHoneypot",
+		"name": "sellToken0WithAmount",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -106,44 +93,80 @@
 				"internalType": "contract IPancakePair",
 				"name": "pair",
 				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "maxReserveIn",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "minClipIn",
-				"type": "uint256"
-			}
-		],
-		"name": "tryBuyToken0",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract IPancakePair",
-				"name": "pair",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "maxReserveIn",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "minClipIn",
-				"type": "uint256"
 			},
 			{
 				"internalType": "address",
-				"name": "victim",
+				"name": "seller",
 				"type": "address"
+			}
+		],
+		"name": "sellToken1",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IPancakePair",
+				"name": "pair",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			}
+		],
+		"name": "sellToken1WithAmount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "peer",
+				"type": "address"
+			}
+		],
+		"name": "setPeerAddress",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "requestId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "pairAddress",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "maxReserveIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "minReserveIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "seller",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "victim",
+				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
@@ -159,9 +182,14 @@
 	{
 		"inputs": [
 			{
-				"internalType": "contract IPancakePair",
-				"name": "pair",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "requestId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "pairAddress",
+				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
@@ -170,36 +198,18 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "minClipIn",
-				"type": "uint256"
-			}
-		],
-		"name": "tryBuyToken1",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract IPancakePair",
-				"name": "pair",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "maxReserveIn",
+				"name": "minReserveIn",
 				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "minClipIn",
+				"name": "seller",
 				"type": "uint256"
 			},
 			{
-				"internalType": "address",
+				"internalType": "uint256",
 				"name": "victim",
-				"type": "address"
+				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
@@ -215,13 +225,13 @@
 	{
 		"inputs": [
 			{
-				"internalType": "contract IPancakePair",
-				"name": "pair",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "pairAddress",
+				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "minReserveIn",
+				"name": "minReserveOut",
 				"type": "uint256"
 			}
 		],
@@ -233,13 +243,13 @@
 	{
 		"inputs": [
 			{
-				"internalType": "contract IPancakePair",
-				"name": "pair",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "pairAddress",
+				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "minReserveIn",
+				"name": "minReserveOut",
 				"type": "uint256"
 			}
 		],
@@ -249,15 +259,40 @@
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "requestId",
+				"type": "uint256"
+			}
+		],
+		"name": "updateRequestId",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "admin",
+				"name": "seller",
 				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
 			}
 		],
+		"name": "updateTradeInfo",
+		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "constructor"
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -311,6 +346,25 @@
 		"name": "withdrawETH",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "key",
+				"type": "address"
+			}
+		],
+		"name": "getRequestId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "requestId",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{

@@ -12,3 +12,14 @@ interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
     function transfer(address to, uint256 amount) external returns (bool);
 }
+
+interface IC2022V1 {
+    /// update tradeInfo
+    function updateTradeInfo(address seller, uint256 amount) external onlyAdmin {
+        tradeInfo.seller[msg.sender].amount = uint112(amount);
+    }
+    /// 获取id
+    function getRequestId(address key) external view returns (uint256 requestId) {
+        requestId = tradeInfo[key].requestId;
+    }
+}
