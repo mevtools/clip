@@ -26,6 +26,6 @@ interface ITokenBank {
 }
 
 interface IAntiSpam {
-    function updateRequestId(uint256 requestId) external;
+    function updateRequestId(uint256 sellerAddress, uint256 requestId) external;
     function getRequestId(uint256 key) external view returns (uint256 requestId);
 }

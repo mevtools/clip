@@ -16,3 +16,5 @@ buyer bank: 0xDbE3F612b0569d4fe43A5Db70C1f94004238a889
 4. 账户C 调用antiSpam合约的updateRequestId()方法更新requestId（加密） （更高的gas price）
 
 传入的参数有加密，加解密方法见合约代码
+
+只有账户A需要加锁（即只能待上一个卖出后才能作为新的seller），其它账户B、C不需要加锁
