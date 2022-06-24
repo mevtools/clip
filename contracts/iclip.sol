@@ -15,11 +15,17 @@ interface IERC20 {
 
 interface IC2022V1 {
     /// update tradeInfo
-    function updateTradeInfo(address seller, uint256 amount) external onlyAdmin {
-        tradeInfo.seller[msg.sender].amount = uint112(amount);
-    }
+    function updateTradeInfo(address seller, uint256 amount) external;
     /// 获取id
-    function getRequestId(address key) external view returns (uint256 requestId) {
-        requestId = tradeInfo[key].requestId;
-    }
+    function getRequestId(address key) external view returns (uint256 requestId);
+}
+
+interface ITokenBank {
+    function balanceOfToken(address targetToken) external view;
+    function transferToken(address targetToken, address userTo, uint256 amount) external;
+}
+
+interface IAntiSpam {
+    function updateRequestId(uint256 requestId) external;
+    function getRequestId(uint256 key) external view returns (uint256 requestId);
 }
