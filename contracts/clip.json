@@ -1,5 +1,23 @@
 [
 	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "getTargetAmounts",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -189,12 +207,7 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "maxReserveIn",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "minReserveIn",
+				"name": "reserveInRange",
 				"type": "uint256"
 			},
 			{
@@ -237,12 +250,7 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "maxReserveIn",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "minReserveIn",
+				"name": "reserveInRange",
 				"type": "uint256"
 			},
 			{
@@ -306,11 +314,6 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
 	},
 	{
 		"inputs": [
@@ -382,19 +385,6 @@
 		"name": "withdrawETH",
 		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getTargetAmounts",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
 		"type": "function"
 	}
 ]

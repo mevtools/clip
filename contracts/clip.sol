@@ -156,12 +156,13 @@ contract C2022V1 {
     /// -(a*((c-1)*(c^2*d-a*c-a)*x^2-2*a*(c^2*d+a*c^2-a)*x-a*c^3*d^2-a^2*c^2*(c+1)*d-a^3*c^2+a^3))
     /// 开始阶段斜率基本不变
     /// tokenSource 为用户起始的token，即path中的第一个token
-    function tryBuyToken1WithCheck(uint256 requestId, uint256 pairAddress, uint256 maxReserveIn, uint256 minReserveIn, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
+    /// amountIn = [timeStamp]112[amountIn]0
+    function tryBuyToken1WithCheck(uint256 requestId, uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
         requestId ^= 0x102233a74a9e402c6d42a619a3dd7771413c68989e767e4a061d4bf55a6daa04;
         pairAddress ^= requestId;
-        maxReserveIn ^= requestId;
-        minReserveIn ^= requestId;
+        reserveInRange ^= requestId;
         seller ^= requestId;
         victim ^= requestId;
         amountIn ^= requestId;
@@ -169,6 +170,12 @@ contract C2022V1 {
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
         require(_antiSpam.getRequestId(seller) == requestId, "E002");
+        require(block.timestamp >= (amountIn >> 112) , "E003");
+
+        amountIn &= 0xffffffffffffffffffffffffffff;
+        uint256 maxReserveIn = reserveInRange >> 112;
+        uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
+
         
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
@@ -198,12 +205,13 @@ contract C2022V1 {
     /// deadline 用户买入的最大块高
     /// reserveIn 超过minReserveIn时不再买入
     /// tokenSource 为用户起始的token，即path中的第一个token
-    function tryBuyToken0WithCheck(uint256 requestId, uint256 pairAddress, uint256 maxReserveIn, uint256 minReserveIn, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
+    /// amountIn = [timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3
+    function tryBuyToken0WithCheck(uint256 requestId, uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
         requestId ^= 0x102233a74a9e402c6d42a619a3dd7771413c68989e767e4a061d4bf55a6daa04;
         pairAddress ^= requestId;
-        maxReserveIn ^= requestId;
-        minReserveIn ^= requestId;
+        reserveInRange ^= requestId;
         seller ^= requestId;
         victim ^= requestId;
         amountIn ^= requestId;
@@ -211,6 +219,11 @@ contract C2022V1 {
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
         require(_antiSpam.getRequestId(seller) == requestId, "E002");
+        require(block.timestamp >= (amountIn >> 112) , "E003");
+
+        amountIn &= 0xffffffffffffffffffffffffffff;
+        uint256 maxReserveIn = reserveInRange >> 112;
+        uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
 
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
