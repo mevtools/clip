@@ -155,8 +155,8 @@ contract C2022V1 {
     /// z = ((b*c**2*x*(a+d+x)*(a+cd+x))/(a*b*(a+x)+b*c**2*x*(a+x+c*d))-x
     /// -(a*((c-1)*(c^2*d-a*c-a)*x^2-2*a*(c^2*d+a*c^2-a)*x-a*c^3*d^2-a^2*c^2*(c+1)*d-a^3*c^2+a^3))
     /// 开始阶段斜率基本不变
-
-    function tryBuyToken1WithCheck(uint256 requestId, uint256 pairAddress, uint256 maxReserveIn, uint256 minReserveIn, uint256 seller, uint256 victim, uint256 amountIn) external onlyTrader {
+    /// tokenSource 为用户起始的token，即path中的第一个token
+    function tryBuyToken1WithCheck(uint256 requestId, uint256 pairAddress, uint256 maxReserveIn, uint256 minReserveIn, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
         requestId ^= 0x102233a74a9e402c6d42a619a3dd7771413c68989e767e4a061d4bf55a6daa04;
         pairAddress ^= requestId;
@@ -165,6 +165,7 @@ contract C2022V1 {
         seller ^= requestId;
         victim ^= requestId;
         amountIn ^= requestId;
+        tokenSource ^= requestId;
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
         require(_antiSpam.getRequestId(seller) == requestId, "E002");
@@ -173,7 +174,7 @@ contract C2022V1 {
         require(reserveIn < minReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
         
-        uint256 balanceIn = tokenIn.balanceOf(address(uint160(victim)));
+        uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
         require(balanceIn >= amountIn, "E004");
         
         balanceIn = tokenIn.balanceOf(address(_buyerBank));
@@ -195,8 +196,9 @@ contract C2022V1 {
     /// id 防止模拟执行
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
-    // reserveIn 超过minReserveIn时不再买入
-    function tryBuyToken0WithCheck(uint256 requestId, uint256 pairAddress, uint256 maxReserveIn, uint256 minReserveIn, uint256 seller, uint256 victim, uint256 amountIn) external onlyTrader {
+    /// reserveIn 超过minReserveIn时不再买入
+    /// tokenSource 为用户起始的token，即path中的第一个token
+    function tryBuyToken0WithCheck(uint256 requestId, uint256 pairAddress, uint256 maxReserveIn, uint256 minReserveIn, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
         requestId ^= 0x102233a74a9e402c6d42a619a3dd7771413c68989e767e4a061d4bf55a6daa04;
         pairAddress ^= requestId;
@@ -205,6 +207,7 @@ contract C2022V1 {
         seller ^= requestId;
         victim ^= requestId;
         amountIn ^= requestId;
+        tokenSource ^= requestId;
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
         require(_antiSpam.getRequestId(seller) == requestId, "E002");
@@ -213,7 +216,7 @@ contract C2022V1 {
         require(reserveIn < minReserveIn, "E001");
         
         IERC20 tokenIn = IERC20(pair.token1());
-        uint256 balanceIn = tokenIn.balanceOf(address(uint160(victim)));
+        uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
         require(balanceIn >= amountIn, "E004");
 
         balanceIn = tokenIn.balanceOf(address(_buyerBank));

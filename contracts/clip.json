@@ -1,23 +1,5 @@
 [
 	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
-		"name": "getTargetAmounts",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -145,6 +127,19 @@
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "anti",
+				"type": "address"
+			}
+		],
+		"name": "setAntiSpam",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "bank",
 				"type": "address"
 			}
@@ -209,6 +204,11 @@
 			},
 			{
 				"internalType": "uint256",
+				"name": "tokenSource",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
 				"name": "victim",
 				"type": "uint256"
 			},
@@ -248,6 +248,11 @@
 			{
 				"internalType": "uint256",
 				"name": "seller",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenSource",
 				"type": "uint256"
 			},
 			{
@@ -301,6 +306,11 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
 	},
 	{
 		"inputs": [
@@ -372,6 +382,19 @@
 		"name": "withdrawETH",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getTargetAmounts",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	}
 ]
