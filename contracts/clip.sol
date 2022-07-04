@@ -13,9 +13,12 @@ contract C2022V1 {
     ITokenBank private _buyerBank;
     IAntiSpam private _antiSpam;
 
-    constructor() {
+    constructor(address peer, address buyerBank, address sellerBank) {
         _admins[msg.sender] = 1;
         _withdrawals[msg.sender] = 1;
+        _peerContract = IC2022V1(peer);
+        _buyerBank = ITokenBank(buyerBank);
+        _sellerBank = ITokenBank(sellerBank);
     }
 
     modifier onlyAdmin {
@@ -158,32 +161,29 @@ contract C2022V1 {
     /// tokenSource 为用户起始的token，即path中的第一个token
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [timeStamp]112[amountIn]0
-    function tryBuyToken1WithCheck(uint256 requestId, uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    function tryBuyToken1WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
-        requestId ^= 0x102233a74a9e402c6d42a619a3dd7771413c68989e767e4a061d4bf55a6daa04;
-        pairAddress ^= requestId;
-        reserveInRange ^= requestId;
-        seller ^= requestId;
-        victim ^= requestId;
-        amountIn ^= requestId;
-        tokenSource ^= requestId;
+        pairAddress ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        seller ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
-        require(_antiSpam.getRequestId(seller) == requestId, "E002");
         require(block.timestamp >= (amountIn >> 112) , "E003");
 
-        amountIn &= 0xffffffffffffffffffffffffffff;
-        uint256 maxReserveIn = reserveInRange >> 112;
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
-
         
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
-        
+
+        amountIn &= 0xffffffffffffffffffffffffffff;
         uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
         require(balanceIn >= amountIn, "E004");
         
+        uint256 maxReserveIn = reserveInRange >> 112;
         balanceIn = tokenIn.balanceOf(address(_buyerBank));
         amountIn = maxReserveIn - reserveIn;
         amountIn = amountIn < balanceIn ? amountIn : balanceIn;
@@ -207,31 +207,29 @@ contract C2022V1 {
     /// tokenSource 为用户起始的token，即path中的第一个token
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3
-    function tryBuyToken0WithCheck(uint256 requestId, uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    function tryBuyToken0WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
-        requestId ^= 0x102233a74a9e402c6d42a619a3dd7771413c68989e767e4a061d4bf55a6daa04;
-        pairAddress ^= requestId;
-        reserveInRange ^= requestId;
-        seller ^= requestId;
-        victim ^= requestId;
-        amountIn ^= requestId;
-        tokenSource ^= requestId;
+        pairAddress ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        seller ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
-        require(_antiSpam.getRequestId(seller) == requestId, "E002");
         require(block.timestamp >= (amountIn >> 112) , "E003");
 
-        amountIn &= 0xffffffffffffffffffffffffffff;
-        uint256 maxReserveIn = reserveInRange >> 112;
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
 
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
-        
+
+        amountIn &= 0xffffffffffffffffffffffffffff;
         IERC20 tokenIn = IERC20(pair.token1());
         uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
         require(balanceIn >= amountIn, "E004");
 
+        uint256 maxReserveIn = reserveInRange >> 112;
         balanceIn = tokenIn.balanceOf(address(_buyerBank));
         amountIn = maxReserveIn - reserveIn;
         amountIn = amountIn < balanceIn ? amountIn : balanceIn;
