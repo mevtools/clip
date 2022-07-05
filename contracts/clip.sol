@@ -161,7 +161,7 @@ contract C2022V1 {
     /// tokenSource 为用户起始的token，即path中的第一个token
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [timeStamp]112[amountIn]0
-    function tryBuyToken1WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    function tryBuyToken1WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn, uint256 coinbase) external onlyTrader {
         // decrypt
         pairAddress ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -169,9 +169,11 @@ contract C2022V1 {
         victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        coinbase ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
-        require(block.timestamp >= (amountIn >> 112) , "E003");
+        require(block.timestamp == (amountIn >> 112) , "E003");
+        require(block.coinbase == address(uint160(coinbase)) , "E002");
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
         
@@ -207,7 +209,7 @@ contract C2022V1 {
     /// tokenSource 为用户起始的token，即path中的第一个token
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3
-    function tryBuyToken0WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    function tryBuyToken0WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn, uint256 coinbase) external onlyTrader {
         // decrypt
         pairAddress ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -215,9 +217,11 @@ contract C2022V1 {
         victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        coinbase ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
 
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
-        require(block.timestamp >= (amountIn >> 112) , "E003");
+        require(block.timestamp == (amountIn >> 112) , "E003");
+        require(block.coinbase == address(uint160(coinbase)) , "E002");
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
 

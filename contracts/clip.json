@@ -3,40 +3,6 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "peer",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "buyerBank",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "sellerBank",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
-		"name": "getTargetAmounts",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
 				"name": "user",
 				"type": "address"
 			}
@@ -240,6 +206,11 @@
 				"internalType": "uint256",
 				"name": "amountIn",
 				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "coinbase",
+				"type": "uint256"
 			}
 		],
 		"name": "tryBuyToken0WithCheck",
@@ -277,6 +248,11 @@
 			{
 				"internalType": "uint256",
 				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "coinbase",
 				"type": "uint256"
 			}
 		],
@@ -320,6 +296,27 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "peer",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "buyerBank",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "sellerBank",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
 	},
 	{
 		"inputs": [
@@ -391,6 +388,19 @@
 		"name": "withdrawETH",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getTargetAmounts",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	}
 ]
