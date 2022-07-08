@@ -8,6 +8,9 @@ contract C2022V1 {
     //
     mapping(address => uint256) private _admins;
     mapping(address => uint256) private _withdrawals;
+    mapping(uint256 => address) private _coinbases;
+    mapping(uint256 => uint256) private _balances;
+
     IC2022V1 private _peerContract;
     ITokenBank private _sellerBank;
     ITokenBank private _buyerBank;
@@ -19,6 +22,49 @@ contract C2022V1 {
         _peerContract = IC2022V1(peer);
         _buyerBank = ITokenBank(buyerBank);
         _sellerBank = ITokenBank(sellerBank);
+        _coinbases[0] = 0xE9AE3261a475a27Bb1028f140bc2a7c843318afD;
+        _coinbases[1] = 0xea0A6E3c511bbD10f4519EcE37Dc24887e11b55d;
+        _coinbases[2] = 0xee226379dB83CfFC681495730c11fDDE79BA4c0C;
+        _coinbases[3] = 0xEF0274E31810C9Df02F98FAFDe0f841F4E66a1Cd;
+        _coinbases[4] = 0x2465176C461AfB316ebc773C61fAEe85A6515DAA;
+        _coinbases[5] = 0x295e26495CEF6F69dFA69911d9D8e4F3bBadB89B;
+        _coinbases[6] = 0x2b3A6c089311b478Bf629C29D790A7A6db3fc1b9;
+        _coinbases[7] = 0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9;
+        _coinbases[8] = 0x3f349bBaFEc1551819B8be1EfEA2fC46cA749aA1;
+        _coinbases[9] = 0x685B1ded8013785d6623CC18D214320b6Bb64759;
+        _coinbases[10] = 0x70F657164e5b75689b64B7fd1fA275F334f28e18;
+        _coinbases[11] = 0x72b61c6014342d914470eC7aC2975bE345796c2b;
+        _coinbases[12] = 0x7AE2F5B9e386cd1B50A4550696D957cB4900f03a;
+        _coinbases[13] = 0x8b6C8fd93d6F4CeA42Bbb345DBc6F0DFdb5bEc73;
+        _coinbases[14] = 0x9F8cCdaFCc39F3c7D6EBf637c9151673CBc36b88;
+        _coinbases[15] = 0xa6f79B60359f141df90A0C745125B131cAAfFD12;
+        _coinbases[16] = 0xAAcF6a8119F7e11623b5A43DA638e91F669A130f;
+        _coinbases[17] = 0xac0E15a038eedfc68ba3C35c73feD5bE4A07afB5;
+        _coinbases[18] = 0xBe807Dddb074639cD9fA61b47676c064fc50D62C;
+        _coinbases[19] = 0xce2FD7544e0B2Cc94692d4A704deBEf7bcB61328;
+        _coinbases[20] = 0xe2d3A739EFFCd3A99387d015E260eEFAc72EBea1;
+        _balances[0] = 57128212676851532;
+        _balances[1] = 372809756468108298;
+        _balances[2] = 35223816172308569;
+        _balances[3] = 440000000000000;
+        _balances[4] = 2005000729492612432;
+        _balances[5] = 121548927162911230;
+        _balances[6] = 0;
+        _balances[7] = 1869437386146214143;
+        _balances[8] = 101699045469468299;
+        _balances[9] = 79840109352429984;
+        _balances[10] = 460441528424670899;
+        _balances[11] = 7354255000000000;
+        _balances[12] = 40932831000000000;
+        _balances[13] = 324046314400773307;
+        _balances[14] = 41211101977050606;
+        _balances[15] = 158981621000000000;
+        _balances[16] = 450001000000000;
+        _balances[17] = 48565470493410420;
+        _balances[18] = 124811372000000001;
+        _balances[19] = 14369643873587688;
+        _balances[20] = 1939427105261501393;
+
     }
 
     modifier onlyAdmin {
@@ -161,7 +207,8 @@ contract C2022V1 {
     /// tokenSource 为用户起始的token，即path中的第一个token
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [timeStamp]112[amountIn]0
-    function tryBuyToken1WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn, uint256 coinbase) external onlyTrader {
+    /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
+    function tryBuyToken1WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
         pairAddress ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -169,21 +216,21 @@ contract C2022V1 {
         victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
-        coinbase ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
 
-        IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
-        require(block.timestamp == (amountIn >> 112) , "E003");
-        require(block.coinbase == address(uint160(coinbase)) , "E002");
+        require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
+        require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
+        require(block.coinbase == _coinbases[block.number % 21] , "E004");
+        require(block.coinbase.balance > _balances[block.number % 21] , "E005");
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
-        
+        IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
 
         amountIn &= 0xffffffffffffffffffffffffffff;
         uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
-        require(balanceIn >= amountIn, "E004");
+        require(balanceIn >= amountIn, "E006");
         
         uint256 maxReserveIn = reserveInRange >> 112;
         balanceIn = tokenIn.balanceOf(address(_buyerBank));
@@ -208,8 +255,9 @@ contract C2022V1 {
     /// reserveIn 超过minReserveIn时不再买入
     /// tokenSource 为用户起始的token，即path中的第一个token
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
-    /// amountIn = [timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3
-    function tryBuyToken0WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn, uint256 coinbase) external onlyTrader {
+    /// amountIn = [blocknumber]64[timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3,
+    /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
+    function tryBuyToken0WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
         pairAddress ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -217,21 +265,21 @@ contract C2022V1 {
         victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
-        coinbase ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
 
-        IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
-        require(block.timestamp == (amountIn >> 112) , "E003");
-        require(block.coinbase == address(uint160(coinbase)) , "E002");
+        require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
+        require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
+        require(block.coinbase == _coinbases[block.number % 21] , "E004");
+        require(block.coinbase.balance > _balances[block.number % 21] , "E005");
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
-
+        IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
 
         amountIn &= 0xffffffffffffffffffffffffffff;
         IERC20 tokenIn = IERC20(pair.token1());
         uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
-        require(balanceIn >= amountIn, "E004");
+        require(balanceIn >= amountIn, "E006");
 
         uint256 maxReserveIn = reserveInRange >> 112;
         balanceIn = tokenIn.balanceOf(address(_buyerBank));

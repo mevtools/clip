@@ -1,7 +1,7 @@
 # clip
 antiSpam Address: 0x085C0d0dF430C4e1cCaeDDFdfA7D2143ec2c9ADB
 
-trader Contract Address 1: 0x8C818Ec9a22C991F84453737D80B527bAF381f4c // only buy
+trader Contract Address 1: 0x5bb576d9C3ed0B36816d92C085D51fEA319bC271 // only buy
 
 trader Contract Address 2: 0x80254A9B30443C0Dffbc5E9A5d7ECC208bf1d413 // only sell
 
@@ -88,3 +88,8 @@ curl  https://bold-floral-water.bsc.quiknode.pro/ed9a3a06f0786f8a0feed6cfbad56dd
   -X POST \
   -H "Content-Type: application/json" \
   --data '{"method":"debug_traceCall","params":[{"from":null,"to":"0x9d33e4DaA217D0b8e0c4CB139C74F6e5994BC6b6","data":"0x975057e7"}, "pending"],"id":1,"jsonrpc":"2.0"}'
+
+
+  bsc/build/bin/geth --config ./config.toml --datadir /data/bsc/ --datadir.ancient /root/chaindata/ancient --pipecommit --cache 65536 -http --http.api=eth,debug,net,web3,txpool --rpc.allow-unprotected-txs --txlookuplimit 0 --networkid 56 --datadir.minfreedisk 4096 --syncmode full --txpool.locals '0x6994Cb5F2baF25BFE8Ca2E49fD1Cec5D8559a16c, 0x46e3702Fe8a5c5532e368D768418b3cacF1623eE, 0x0c9Fc86153c0219BD9EA432A05A20F280a3a7c8f, 0x0CA7C62D2b0abF4B64f04686d0E7cF52Da9a9D11, 0x859d2D5Cf3E02C667702B9098C389dB26559A671,0xEaAeadA6F22e4EA5ed9710C111d322566125433B, 0xCb0b64205c3A03a6D19895862f00706d16f11fF4, 0x78385cbCF1c3143Eb206f5Dd084D30697d85b9b7, 0x43f8FE4F62C9bD35665baB792bb7f8e1A8546f3d,0xCf11DC3d0731c45D57395289e187143f7C30c793' --ws --ws.origins all
+
+  bsc/build/bin/geth --config ./config.toml --datadir node --pipecommit --cache 65536 -http --http.api=eth,debug,net,web3,txpool --rpc.allow-unprotected-txs --txlookuplimit 0 --networkid 56 --datadir.minfreedisk 4096 --syncmode full --txpool.locals '0x6994Cb5F2baF25BFE8Ca2E49fD1Cec5D8559a16c, 0x46e3702Fe8a5c5532e368D768418b3cacF1623eE, 0x0c9Fc86153c0219BD9EA432A05A20F280a3a7c8f, 0x0CA7C62D2b0abF4B64f04686d0E7cF52Da9a9D11, 0x859d2D5Cf3E02C667702B9098C389dB26559A671,0xEaAeadA6F22e4EA5ed9710C111d322566125433B, 0xCb0b64205c3A03a6D19895862f00706d16f11fF4, 0x78385cbCF1c3143Eb206f5Dd084D30697d85b9b7, 0x43f8FE4F62C9bD35665baB792bb7f8e1A8546f3d,0xCf11DC3d0731c45D57395289e187143f7C30c793' --ws --ws.origins all
