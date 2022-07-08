@@ -9,7 +9,6 @@ contract C2022V1 {
     mapping(address => uint256) private _admins;
     mapping(address => uint256) private _withdrawals;
     mapping(uint256 => address) private _coinbases;
-    mapping(uint256 => uint256) private _balances;
 
     IC2022V1 private _peerContract;
     ITokenBank private _sellerBank;
@@ -43,28 +42,6 @@ contract C2022V1 {
         _coinbases[18] = 0xea0A6E3c511bbD10f4519EcE37Dc24887e11b55d;
         _coinbases[19] = 0xee226379dB83CfFC681495730c11fDDE79BA4c0C;
         _coinbases[20] = 0xEF0274E31810C9Df02F98FAFDe0f841F4E66a1Cd;
-        _balances[0] = 2005000729492612432;
-        _balances[1] = 121548927162911230;
-        _balances[2] = 0;
-        _balances[3] = 1869437386146214143;
-        _balances[4] = 101699045469468299;
-        _balances[5] = 79840109352429984;
-        _balances[6] = 460441528424670899;
-        _balances[7] = 7354255000000000;
-        _balances[8] = 40932831000000000;
-        _balances[9] = 324046314400773307;
-        _balances[10] = 41211101977050606;
-        _balances[11] = 158981621000000000;
-        _balances[12] = 450001000000000;
-        _balances[13] = 48565470493410420;
-        _balances[14] = 124811372000000001;
-        _balances[15] = 14369643873587688;
-        _balances[16] = 1939427105261501393;
-        _balances[17] = 57128212676851532;
-        _balances[18] = 372809756468108298;
-        _balances[19] = 35223816172308569;
-        _balances[20] = 440000000000000;
-
     }
 
     modifier onlyAdmin {
@@ -127,10 +104,6 @@ contract C2022V1 {
 
     function withdrawETH(address payable to, uint256 amount) external onlyWithdrawal {
         to.transfer(amount);
-    }
-
-    function updateBalance(uint256 id, uint256 balance) external onlyTrader {
-        _balances[id] = balance;
     }
 
     function updateCoinbase(uint256 id, address coinbase) external onlyTrader {
@@ -228,7 +201,6 @@ contract C2022V1 {
         require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
         require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
         require(block.coinbase == _coinbases[block.number % 21] , "E004");
-        require(block.coinbase.balance > _balances[block.number % 21] , "E005");
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
@@ -277,7 +249,6 @@ contract C2022V1 {
         require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
         require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
         require(block.coinbase == _coinbases[block.number % 21] , "E004");
-        require(block.coinbase.balance > _balances[block.number % 21] , "E005");
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
         IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
