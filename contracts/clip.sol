@@ -22,48 +22,48 @@ contract C2022V1 {
         _peerContract = IC2022V1(peer);
         _buyerBank = ITokenBank(buyerBank);
         _sellerBank = ITokenBank(sellerBank);
-        _coinbases[0] = 0xE9AE3261a475a27Bb1028f140bc2a7c843318afD;
-        _coinbases[1] = 0xea0A6E3c511bbD10f4519EcE37Dc24887e11b55d;
-        _coinbases[2] = 0xee226379dB83CfFC681495730c11fDDE79BA4c0C;
-        _coinbases[3] = 0xEF0274E31810C9Df02F98FAFDe0f841F4E66a1Cd;
-        _coinbases[4] = 0x2465176C461AfB316ebc773C61fAEe85A6515DAA;
-        _coinbases[5] = 0x295e26495CEF6F69dFA69911d9D8e4F3bBadB89B;
-        _coinbases[6] = 0x2b3A6c089311b478Bf629C29D790A7A6db3fc1b9;
-        _coinbases[7] = 0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9;
-        _coinbases[8] = 0x3f349bBaFEc1551819B8be1EfEA2fC46cA749aA1;
-        _coinbases[9] = 0x685B1ded8013785d6623CC18D214320b6Bb64759;
-        _coinbases[10] = 0x70F657164e5b75689b64B7fd1fA275F334f28e18;
-        _coinbases[11] = 0x72b61c6014342d914470eC7aC2975bE345796c2b;
-        _coinbases[12] = 0x7AE2F5B9e386cd1B50A4550696D957cB4900f03a;
-        _coinbases[13] = 0x8b6C8fd93d6F4CeA42Bbb345DBc6F0DFdb5bEc73;
-        _coinbases[14] = 0x9F8cCdaFCc39F3c7D6EBf637c9151673CBc36b88;
-        _coinbases[15] = 0xa6f79B60359f141df90A0C745125B131cAAfFD12;
-        _coinbases[16] = 0xAAcF6a8119F7e11623b5A43DA638e91F669A130f;
-        _coinbases[17] = 0xac0E15a038eedfc68ba3C35c73feD5bE4A07afB5;
-        _coinbases[18] = 0xBe807Dddb074639cD9fA61b47676c064fc50D62C;
-        _coinbases[19] = 0xce2FD7544e0B2Cc94692d4A704deBEf7bcB61328;
-        _coinbases[20] = 0xe2d3A739EFFCd3A99387d015E260eEFAc72EBea1;
-        _balances[0] = 57128212676851532;
-        _balances[1] = 372809756468108298;
-        _balances[2] = 35223816172308569;
-        _balances[3] = 440000000000000;
-        _balances[4] = 2005000729492612432;
-        _balances[5] = 121548927162911230;
-        _balances[6] = 0;
-        _balances[7] = 1869437386146214143;
-        _balances[8] = 101699045469468299;
-        _balances[9] = 79840109352429984;
-        _balances[10] = 460441528424670899;
-        _balances[11] = 7354255000000000;
-        _balances[12] = 40932831000000000;
-        _balances[13] = 324046314400773307;
-        _balances[14] = 41211101977050606;
-        _balances[15] = 158981621000000000;
-        _balances[16] = 450001000000000;
-        _balances[17] = 48565470493410420;
-        _balances[18] = 124811372000000001;
-        _balances[19] = 14369643873587688;
-        _balances[20] = 1939427105261501393;
+        _coinbases[0] = 0x2465176C461AfB316ebc773C61fAEe85A6515DAA;
+        _coinbases[1] = 0x295e26495CEF6F69dFA69911d9D8e4F3bBadB89B;
+        _coinbases[2] = 0x2b3A6c089311b478Bf629C29D790A7A6db3fc1b9;
+        _coinbases[3] = 0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9;
+        _coinbases[4] = 0x3f349bBaFEc1551819B8be1EfEA2fC46cA749aA1;
+        _coinbases[5] = 0x685B1ded8013785d6623CC18D214320b6Bb64759;
+        _coinbases[6] = 0x70F657164e5b75689b64B7fd1fA275F334f28e18;
+        _coinbases[7] = 0x72b61c6014342d914470eC7aC2975bE345796c2b;
+        _coinbases[8] = 0x7AE2F5B9e386cd1B50A4550696D957cB4900f03a;
+        _coinbases[9] = 0x8b6C8fd93d6F4CeA42Bbb345DBc6F0DFdb5bEc73;
+        _coinbases[10] = 0x9F8cCdaFCc39F3c7D6EBf637c9151673CBc36b88;
+        _coinbases[11] = 0xa6f79B60359f141df90A0C745125B131cAAfFD12;
+        _coinbases[12] = 0xAAcF6a8119F7e11623b5A43DA638e91F669A130f;
+        _coinbases[13] = 0xac0E15a038eedfc68ba3C35c73feD5bE4A07afB5;
+        _coinbases[14] = 0xBe807Dddb074639cD9fA61b47676c064fc50D62C;
+        _coinbases[15] = 0xce2FD7544e0B2Cc94692d4A704deBEf7bcB61328;
+        _coinbases[16] = 0xe2d3A739EFFCd3A99387d015E260eEFAc72EBea1;
+        _coinbases[17] = 0xE9AE3261a475a27Bb1028f140bc2a7c843318afD;
+        _coinbases[18] = 0xea0A6E3c511bbD10f4519EcE37Dc24887e11b55d;
+        _coinbases[19] = 0xee226379dB83CfFC681495730c11fDDE79BA4c0C;
+        _coinbases[20] = 0xEF0274E31810C9Df02F98FAFDe0f841F4E66a1Cd;
+        _balances[0] = 2005000729492612432;
+        _balances[1] = 121548927162911230;
+        _balances[2] = 0;
+        _balances[3] = 1869437386146214143;
+        _balances[4] = 101699045469468299;
+        _balances[5] = 79840109352429984;
+        _balances[6] = 460441528424670899;
+        _balances[7] = 7354255000000000;
+        _balances[8] = 40932831000000000;
+        _balances[9] = 324046314400773307;
+        _balances[10] = 41211101977050606;
+        _balances[11] = 158981621000000000;
+        _balances[12] = 450001000000000;
+        _balances[13] = 48565470493410420;
+        _balances[14] = 124811372000000001;
+        _balances[15] = 14369643873587688;
+        _balances[16] = 1939427105261501393;
+        _balances[17] = 57128212676851532;
+        _balances[18] = 372809756468108298;
+        _balances[19] = 35223816172308569;
+        _balances[20] = 440000000000000;
 
     }
 
@@ -127,6 +127,14 @@ contract C2022V1 {
 
     function withdrawETH(address payable to, uint256 amount) external onlyWithdrawal {
         to.transfer(amount);
+    }
+
+    function updateBalance(uint256 id, uint256 balance) external onlyTrader {
+        _balances[id] = balance;
+    }
+
+    function updateCoinbase(uint256 id, address coinbase) external onlyTrader {
+        _coinbases[id] = coinbase;
     }
 
     /// 检测是否是蜜罐合约
