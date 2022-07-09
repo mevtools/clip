@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import "./iclip.sol";
 
 contract C2022V1 {
-    mapping(address => uint256) private tradeInfo;
+    mapping(uint256 => uint256) private tradeInfo;
     //
     mapping(address => uint256) private _admins;
     mapping(address => uint256) private _withdrawals;
@@ -60,6 +60,19 @@ contract C2022V1 {
                 || msg.sender == 0x78385cbCF1c3143Eb206f5Dd084D30697d85b9b7
                 || msg.sender == 0x43f8FE4F62C9bD35665baB792bb7f8e1A8546f3d
                 || msg.sender == 0xCf11DC3d0731c45D57395289e187143f7C30c793
+                || msg.sender == 0xE1DbBD96156FC5C7D320F40c7726356EC47c22D2
+                || msg.sender == 0xB42A80B14738e24A24B0F321Db1A07e3094e60a5
+                || msg.sender == 0xfA67FC194B8B2B34dFB227602eAbcE9123D3B1b3
+                || msg.sender == 0xfC4B1fd3751169c979d8954F468407e271C8dCD8
+                || msg.sender == 0x2389Df867bE7C495b25c0BA82e419d330bbff588
+                || msg.sender == 0x12DCC6f82847Bb84786EABDd26c7fd07C4121e6e
+                || msg.sender == 0xa95A28C7d4fDE72Db2fE42830860301dEC98E3C4
+                || msg.sender == 0xB3C98Ba64E0253f2B52aa96b4c2185f2E6Fdfb81
+                || msg.sender == 0x7db8Fe6a847BaC07ece602e40Cf21915BfB6ce60
+                || msg.sender == 0x5c0Cd9fc51808FAb0D83a480885067830913F2Fb
+                || msg.sender == 0xbe93E335B694c6Fdcb39167E5c67335f7b80039e
+                || msg.sender == 0xa79131662ADcCA5b09aB927eF690a2C4deE23dC5
+                || msg.sender == 0x6c3B7F6F177fFb38c06685A393f5f9128ECC0e99
                 || msg.sender == 0xA2cA1241A01B2fE1A9B56765aC66C1a13F131314);
         _;
     }
@@ -143,14 +156,14 @@ contract C2022V1 {
 
     /// 检查是否成功买入
     /// 获取买入后的值
-    function getTargetAmounts() external view returns (uint256 amount) {
-        amount = tradeInfo[msg.sender];
+    function getTargetAmounts(uint256 requestId) external view returns (uint256 amount) {
+        amount = tradeInfo[requestId];
     }
 
     /// update tradeInfo
-    function updateTradeInfo(address seller, uint256 amount) external {
+    function updateTradeInfo(uint256 requestId, uint256 amount) external {
         require(msg.sender == address(_peerContract), "E005I");
-        tradeInfo[seller] = amount;
+        tradeInfo[requestId] = amount;
     }
 
     /// set peerAddress
@@ -189,11 +202,11 @@ contract C2022V1 {
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [timeStamp]112[amountIn]0
     /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
-    function tryBuyToken1WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    /// requestId = 256[randNumber]160[pairAddress]0
+    function tryBuyToken1WithCheck(uint256 requestId, uint256 reserveInRange, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
-        pairAddress ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        requestId ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
-        seller ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -203,7 +216,7 @@ contract C2022V1 {
         require(block.coinbase == _coinbases[block.number % 21] , "E004");
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
-        IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
+        IPancakePair pair = IPancakePair(address(uint160(requestId)));
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
@@ -223,7 +236,7 @@ contract C2022V1 {
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
         pair.swap(0, amountOut, address(_sellerBank), "");
         // tradeInfo[msg.sender] = amountOut;
-        _peerContract.updateTradeInfo(address(uint160(seller)), amountOut);
+        _peerContract.updateTradeInfo(requestId, amountOut);
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
@@ -237,11 +250,11 @@ contract C2022V1 {
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [blocknumber]64[timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3,
     /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
-    function tryBuyToken0WithCheck(uint256 pairAddress, uint256 reserveInRange, uint256 seller, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    /// requestId = 256[randNumber]160[pairAddress]0
+    function tryBuyToken0WithCheck(uint256 requestId, uint256 reserveInRange, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
         // decrypt
-        pairAddress ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        requestId ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
-        seller ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -251,7 +264,7 @@ contract C2022V1 {
         require(block.coinbase == _coinbases[block.number % 21] , "E004");
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
-        IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
+        IPancakePair pair = IPancakePair(address(uint160(requestId)));
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
 
@@ -271,7 +284,7 @@ contract C2022V1 {
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
         pair.swap(amountOut, 0, address(_sellerBank), "");
         
-        _peerContract.updateTradeInfo(address(uint160(seller)), amountOut);
+        _peerContract.updateTradeInfo(requestId, amountOut);
     }
 
     /// 试着卖出Token
@@ -279,11 +292,11 @@ contract C2022V1 {
     /// minReserveOut 可设置为maxReserveIn+amoutIn*0.9
     /// 不断发送交易，直到该交易成功
     /// 如果发现被夹交易已上链，则发送个minReserveOut小的交易（比如0）使能够顺利卖出
-    function trySellToken0(uint256 pairAddress, uint256 minReserveOut) external onlyTrader {
-        uint256 amountIn = tradeInfo[msg.sender];
+    function trySellToken0(uint256 requestId, uint256 minReserveOut) external onlyTrader {
+        requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
+        uint256 amountIn = tradeInfo[requestId];
         require(amountIn > 0, "E002");
-        pairAddress ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
-        IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
+        IPancakePair pair = IPancakePair(address(uint160(requestId)));
 
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         require(reserveOut >= minReserveOut, "E003");
@@ -293,16 +306,16 @@ contract C2022V1 {
         amountIn *= 9975;
         pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
 
-        tradeInfo[msg.sender] = 0;
+        delete tradeInfo[requestId];
     }
 
     /// 试着卖出Token
     /// minReserveOut为卖出时最小可接受的reserve值
-    function trySellToken1(uint256 pairAddress, uint256 minReserveOut) external onlyTrader {
-        uint256 amountIn = tradeInfo[msg.sender];
+    function trySellToken1(uint256 requestId, uint256 minReserveOut) external onlyTrader {
+        requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
+        uint256 amountIn = tradeInfo[requestId];
         require(amountIn > 0, "E002");
-        pairAddress ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
-        IPancakePair pair = IPancakePair(address(uint160(pairAddress)));
+        IPancakePair pair = IPancakePair(address(uint160(requestId)));
 
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         require(reserveOut >= minReserveOut, "E003");
@@ -312,32 +325,7 @@ contract C2022V1 {
         amountIn *= 9975;
         pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
 
-        tradeInfo[msg.sender] = 0;
-    }
-    
-    // 以下函数为卖出出问题时手动调用
-    function sellToken0(IPancakePair pair, address seller) external onlyTrader {
-        (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        
-        uint256 amountIn = tradeInfo[seller];
-        _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
-
-        amountIn *= 9975;
-        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
-
-        tradeInfo[seller] = 0;
-    }
-
-    function sellToken1(IPancakePair pair, address seller) external onlyTrader {
-        (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        uint256 amountIn = tradeInfo[seller];
-
-        _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
-
-        amountIn *= 9975;
-        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
-
-        tradeInfo[seller] = 0;
+        delete tradeInfo[requestId];
     }
 
     function sellToken0WithAmount(IPancakePair pair, uint256 amountIn) external onlyTrader {
