@@ -11,15 +11,14 @@ seller bank: 0x357D5EdF29aDFa6937933BD99E4Ed12b676098dB
 
 ## 调用流程
 
-1. 随机生成256位的requestId
+1. 随机生成96位的随机数跟160位pair address放在一起组成256位的requestId
 2. 选择seller的账户，比如账户 A
 2. 账户A 调用Seller的trySellToken方法卖出
 3. 账户B 调用Buyer的tryBuyToken买入（较高gas price）
-4. 账户C 调用antiSpam合约的updateRequestId()方法更新requestId（加密） （更高的gas price）
 
 传入的参数有加密，加解密方法见合约代码
 
-只有账户A需要加锁（即只能待上一个卖出后才能作为新的seller），其它账户B、C不需要加锁
+如果买入成功，但是卖出不成功，记录下该requestId，使用该requestId进行重卖（使用固定账户）。
 
 coinbase地址列表：
 ```python
