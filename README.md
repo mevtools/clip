@@ -9,6 +9,8 @@ buyer bank: 0x8f5c50d478eCcd4DF9F83bE7293d8e4D37dD46d5
 
 seller bank: 0x357D5EdF29aDFa6937933BD99E4Ed12b676098dB
 
+test honey: 0x8c9d653E323020E85b834F533465f8fa77a38Acd
+
 ## 调用流程
 
 1. 随机生成96位的随机数跟160位pair address放在一起组成256位的requestId
