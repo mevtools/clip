@@ -123,6 +123,38 @@ contract TestHoney {
         require(balanceBefore + amountOut == balanceAfter, "E004");
     }
 
+     // 检测是否是蜜罐合约
+    // outId 0/1 买入哪个token
+    // amountIn 买入量
+    // fee: 0.25% = 25
+    function testHoneypot2(IPancakePair2 pair, uint256 outId, uint256 amountIn, uint256 fee) external onlyTrader {
+        IERC20 tokenIn;
+        IERC20 tokenOut;
+        uint112 reserveIn;
+        uint112 reserveOut;
+        if (outId == 0) {
+            tokenIn = IERC20(pair.token1());
+            tokenOut = IERC20(pair.token0());
+            (reserveOut, reserveIn, ) = pair.getReserves();
+        } else {
+            tokenIn = IERC20(pair.token0());
+            tokenOut = IERC20(pair.token1());
+            (reserveIn, reserveOut, ) = pair.getReserves();
+        }
+        uint256 amountInWithFee = amountIn * (10000 - fee);
+        uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
+         _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+        if (outId == 0) {
+            pair.swap(amountOut, 0, address(_sellerBank));
+        } else {
+            pair.swap(0, amountOut, address(_sellerBank));
+        }
+        uint256 balanceBefore = tokenOut.balanceOf(address(pair));
+        _sellerBank.transferToken(address(tokenOut), address(pair), amountOut);
+        uint256 balanceAfter = tokenOut.balanceOf(address(pair));
+        require(balanceBefore + amountOut == balanceAfter, "E004");
+    }
+
     /// set sellerBank
     function setSellerBank(address bank) external onlyAdmin {
         _sellerBank = ITokenBank(bank);
