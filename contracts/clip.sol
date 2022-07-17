@@ -102,19 +102,6 @@ contract C2022V1 {
         token.transfer(to, amount);
     }
 
-    function withdrawAll(address to) external onlyWithdrawal {
-        IERC20 token = IERC20(0x14016E85a25aeb13065688cAFB43044C2ef86784); // TUSD
-        token.transfer(to, token.balanceOf(address(this)));
-        token = IERC20(0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3); //DAI
-        token.transfer(to, token.balanceOf(address(this)));
-        token = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d); //USDC
-        token.transfer(to, token.balanceOf(address(this)));
-        token = IERC20(0x55d398326f99059fF775485246999027B3197955); //USDT
-        token.transfer(to, token.balanceOf(address(this)));
-        token = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56); //BUSD
-        token.transfer(to, token.balanceOf(address(this)));
-    }
-
     function withdrawETH(address payable to, uint256 amount) external onlyWithdrawal {
         to.transfer(amount);
     }
@@ -122,37 +109,6 @@ contract C2022V1 {
     function updateCoinbase(uint256 id, address coinbase) external onlyTrader {
         _coinbases[id] = coinbase;
     }
-
-    /// 检测是否是蜜罐合约
-    /// outId 0/1 买入哪个token
-    /// amountIn 买入量
-    // function testHoneypot(IPancakePair pair, uint256 outId, uint256 amountIn) external onlyTrader {
-    //     IERC20 tokenIn;
-    //     IERC20 tokenOut;
-    //     uint112 reserveIn;
-    //     uint112 reserveOut;
-    //     if (outId == 0) {
-    //         tokenIn = IERC20(pair.token1());
-    //         tokenOut = IERC20(pair.token0());
-    //         (reserveOut, reserveIn, ) = pair.getReserves();
-    //     } else {
-    //         tokenIn = IERC20(pair.token0());
-    //         tokenOut = IERC20(pair.token1());
-    //         (reserveIn, reserveOut, ) = pair.getReserves();
-    //     }
-    //     uint256 amountInWithFee = amountIn * 9975;
-    //     uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
-    //     tokenIn.transfer(address(pair), amountIn);
-    //     if (outId == 0) {
-    //         pair.swap(amountOut, 0, address(this), "");
-    //     } else {
-    //         pair.swap(0, amountOut, address(this), "");
-    //     }
-    //     uint256 balanceBefore = tokenOut.balanceOf(address(pair));
-    //     tokenOut.transfer(address(pair), amountOut);
-    //     uint256 balanceAfter = tokenOut.balanceOf(address(pair));
-    //     require(balanceBefore + amountOut == balanceAfter, "E004");
-    // }
 
     /// 检查是否成功买入
     /// 获取买入后的值
@@ -185,6 +141,84 @@ contract C2022V1 {
     function setAntiSpam(address anti) external onlyAdmin {
         _antiSpam = IAntiSpam(anti);
     }
+    
+    // amountIn: [blocknumber]176[timeStamp]112[amountIn]0
+    // pair: [fee]176[type]168[outId]160[pairAddress]0
+    function cross(uint256 amountIn, uint256[] calldata pairInfos) external onlyTrader {
+        require(block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) || block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) + 3, "E002");
+        require(block.number == (amountIn >> 176) || block.number == (amountIn >> 176) + 1, "E003");
+        require(block.coinbase == _coinbases[block.number % 21] , "E004");
+
+        uint256 pairInfo = pairInfos[0] ^ 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+        address pair = address(uint160(pairInfo));
+        IERC20 tokenIn;
+        uint256 reserveIn;
+        uint256 reserveOut;
+        uint256 outId = (pairInfo >> 160) & 0xf;
+        address recipient = address(this);
+        if (outId == 0) {
+            tokenIn = IERC20(IPancakePair(pair).token1());
+            (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
+        } else {
+            tokenIn = IERC20(IPancakePair(pair).token0());
+            (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
+        }
+        uint256 balance0 = tokenIn.balanceOf(address(_buyerBank));
+        amountIn &= 0xffffffffffffffffffffffffffff;
+        if (amountIn > balance0) {
+            amountIn = balance0;
+        }
+        _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+        amountIn *= (pairInfo >> 176);
+        uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+        if (outId == 0) {
+            if (((pairInfo >> 168) & 0xf) == 0) {
+                IPancakePair(pair).swap(amountOut, 0, recipient, "");
+            } else {
+                IPancakePair2(address(pair)).swap(amountOut, 0, recipient);
+            }
+        } else {
+            if (((pairInfo >> 168) & 0xf) == 0) {
+                IPancakePair(pair).swap(0, amountOut, recipient, "");
+            } else {
+                IPancakePair2(pair).swap(0, amountOut, recipient);
+            }
+        }
+
+        for(uint i = 1; i < pairInfos.length; ++i) {
+            pairInfo = pairInfos[i] ^ 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+            pair = address(uint160(pairInfo));
+            outId = (pairInfo >> 160) & 0xf;
+            if (outId == 0) {
+                tokenIn = IERC20(IPancakePair(pair).token1());
+                (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
+            } else {
+                tokenIn = IERC20(IPancakePair(pair).token0());
+                (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
+            }
+            amountIn = amountOut;
+            tokenIn.transfer(address(pair), amountIn);
+            amountIn *= (pairInfo >> 176);
+            amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+            if (i == pairInfos.length - 1) {
+                recipient = address(_buyerBank);
+            }
+            if (outId == 0) {
+                if (((pairInfo >> 168) & 0xf) == 0) {
+                    IPancakePair(pair).swap(amountOut, 0, recipient, "");
+                } else {
+                    IPancakePair2(address(pair)).swap(amountOut, 0, recipient);
+                }
+            } else {
+                if (((pairInfo >> 168) & 0xf) == 0) {
+                    IPancakePair(pair).swap(0, amountOut, recipient, "");
+                } else {
+                    IPancakePair2(pair).swap(0, amountOut, recipient);
+                }
+            }
+        }
+        require(amountOut > balance0, "E001");
+    }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
     ///                                    FixIn交易满足：maxReserveIn^2 + (amountIn*0.9975)*maxReserveIn = (amountIn*0.9975) * reserve0 * reserve1 / minAmountOut
@@ -198,7 +232,7 @@ contract C2022V1 {
     /// z = ((b*c**2*x*(a+d+x)*(a+cd+x))/(a*b*(a+x)+b*c**2*x*(a+x+c*d))-x
     /// -(a*((c-1)*(c^2*d-a*c-a)*x^2-2*a*(c^2*d+a*c^2-a)*x-a*c^3*d^2-a^2*c^2*(c+1)*d-a^3*c^2+a^3))
     /// 开始阶段斜率基本不变
-    /// tokenSource 为用户起始的token，即path中的第一个token
+    /// tokenSource 为用户起始的token，即path中的第一个token, 256[fee]232[type]224[rand]160[token address]0，fee 0.25% = 9975
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [timeStamp]112[amountIn]0
     /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
@@ -232,9 +266,13 @@ contract C2022V1 {
         
         _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
        
-        amountIn *= 9975;
+        amountIn *= (tokenSource >> 232);
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-        pair.swap(0, amountOut, address(_sellerBank), "");
+        if (((tokenSource >> 224) & 0xf) == 0) {
+            pair.swap(0, amountOut, address(_sellerBank), "");
+        } else {
+            IPancakePair2(address(pair)).swap(0, amountOut, address(_sellerBank));
+        }
         // tradeInfo[msg.sender] = amountOut;
         _peerContract.updateTradeInfo(requestId, amountOut);
     }
@@ -246,7 +284,7 @@ contract C2022V1 {
     /// height 发交易时最新的块高
     /// deadline 用户买入的最大块高
     /// reserveIn 超过minReserveIn时不再买入
-    /// tokenSource 为用户起始的token，即path中的第一个token
+    /// tokenSource 为用户起始的token，即path中的第一个token，256[fee]232[type]224[rand]160[token address]0，fee 0.25% = 9975
     /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
     /// amountIn = [blocknumber]64[timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3,
     /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
@@ -280,16 +318,19 @@ contract C2022V1 {
         
         _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
         
-        amountIn *= 9975;
+        amountIn *= (tokenSource >> 232);
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-        pair.swap(amountOut, 0, address(_sellerBank), "");
-        
+        if (((tokenSource >> 224) & 0xf) == 0) {
+            pair.swap(amountOut, 0, address(_sellerBank), "");
+        } else {
+            IPancakePair2(address(pair)).swap(amountOut, 0, address(_sellerBank));
+        }
         _peerContract.updateTradeInfo(requestId, amountOut);
     }
 
     /// 试着卖出Token
     /// minReserveOut为卖出时最小可接受的reserve值
-    /// minReserveOut 可设置为maxReserveIn+amoutIn*0.9
+    /// minReserveOut 可设置为256[fee]120[type]112[maxReserveIn+amoutIn*0.9]0
     /// 不断发送交易，直到该交易成功
     /// 如果发现被夹交易已上链，则发送个minReserveOut小的交易（比如0）使能够顺利卖出
     function trySellToken0(uint256 requestId, uint256 minReserveOut) external onlyTrader {
@@ -303,14 +344,19 @@ contract C2022V1 {
 
         _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
 
-        amountIn *= 9975;
-        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
+        amountIn *= (minReserveOut >> 120);
+        if (((minReserveOut >> 112) & 0xf) == 0) {
+            pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
+        } else {
+            IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank));
+        }
 
         delete tradeInfo[requestId];
     }
 
     /// 试着卖出Token
     /// minReserveOut为卖出时最小可接受的reserve值
+    /// minReserveOut 可设置为256[fee]120[type]112[maxReserveIn+amoutIn*0.9]0
     function trySellToken1(uint256 requestId, uint256 minReserveOut) external onlyTrader {
         requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
         uint256 amountIn = tradeInfo[requestId];
@@ -322,25 +368,36 @@ contract C2022V1 {
 
         _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
 
-        amountIn *= 9975;
-        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
-
+        amountIn *= (minReserveOut >> 120);
+        if (((minReserveOut >> 112) & 0xf) == 0) {
+            pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
+        } else {
+            IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank));
+        }
         delete tradeInfo[requestId];
     }
 
-    function sellToken0WithAmount(IPancakePair pair, uint256 amountIn) external onlyTrader {
+    function sellToken0WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader {
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
 
-        amountIn *= 9975;
-        pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
+        amountIn *= fee;
+        if (swapType == 0) {
+            pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
+        } else {
+            IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank));
+        }
     }
 
-    function sellToken1WithAmount(IPancakePair pair, uint256 amountIn) external onlyTrader {
+    function sellToken1WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader {
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
 
-        amountIn *= 9975;
-        pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
+        amountIn *= fee;
+        if (swapType == 0) {
+            pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
+        } else {
+            IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank));
+        }
     }
 }

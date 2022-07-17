@@ -1,9 +1,9 @@
 # clip
 antiSpam Address: 0x085C0d0dF430C4e1cCaeDDFdfA7D2143ec2c9ADB
 
-trader Contract Address 1: 0x40Ab0ecfCe2937B83C504e2Af30EDFd7E7C90672 // only buy
+trader Contract Address 1: 0x27D2e8C0D1F68A07088751a237F43D36ec6c763c
 
-trader Contract Address 2: 0xf889dc27a605f37250F39598Cb18C1dbF8f97377 // only sell
+trader Contract Address 2: 0x48D4D1a7F03439D5411Bd5b9a766BCc8709bE46a
 
 buyer bank: 0x8f5c50d478eCcd4DF9F83bE7293d8e4D37dD46d5
 

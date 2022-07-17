@@ -2,41 +2,19 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "peer",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
 			},
 			{
-				"internalType": "address",
-				"name": "buyerBank",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "sellerBank",
-				"type": "address"
+				"internalType": "uint256[]",
+				"name": "pairInfos",
+				"type": "uint256[]"
 			}
 		],
+		"name": "cross",
+		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "requestId",
-				"type": "uint256"
-			}
-		],
-		"name": "getTargetAmounts",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -102,6 +80,16 @@
 				"internalType": "uint256",
 				"name": "amountIn",
 				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "fee",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "swapType",
+				"type": "uint256"
 			}
 		],
 		"name": "sellToken0WithAmount",
@@ -119,6 +107,16 @@
 			{
 				"internalType": "uint256",
 				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "fee",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "swapType",
 				"type": "uint256"
 			}
 		],
@@ -284,6 +282,27 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "peer",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "buyerBank",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "sellerBank",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
 				"name": "id",
 				"type": "uint256"
@@ -343,19 +362,6 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			}
-		],
-		"name": "withdrawAll",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "address payable",
 				"name": "to",
 				"type": "address"
@@ -369,6 +375,25 @@
 		"name": "withdrawETH",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "requestId",
+				"type": "uint256"
+			}
+		],
+		"name": "getTargetAmounts",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	}
 ]
