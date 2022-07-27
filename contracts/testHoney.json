@@ -3,6 +3,40 @@
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "buyerBank",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "sellerBank",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "pairInfos",
+				"type": "uint256[]"
+			}
+		],
+		"name": "cross",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "user",
 				"type": "address"
 			}
@@ -132,22 +166,6 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "buyerBank",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "sellerBank",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
 	},
 	{
 		"inputs": [

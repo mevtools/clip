@@ -164,4 +164,78 @@ contract TestHoney {
     function setBuyerBank(address bank) external onlyAdmin {
         _buyerBank = ITokenBank(bank);
     }
+
+    // amountIn: [blocknumber]176[timeStamp]112[amountIn]0
+    // pair: [fee]176[type]168[outId]160[pairAddress]0
+    function cross(uint256 amountIn, uint256[] calldata pairInfos) external onlyTrader {
+        uint256 pairInfo = pairInfos[0] ^ 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+        address pair = address(uint160(pairInfo));
+        IERC20 tokenIn;
+        uint256 reserveIn;
+        uint256 reserveOut;
+        uint256 outId = (pairInfo >> 160) & 0xf;
+        address recipient = address(this);
+        if (outId == 0) {
+            tokenIn = IERC20(IPancakePair(pair).token1());
+            (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
+        } else {
+            tokenIn = IERC20(IPancakePair(pair).token0());
+            (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
+        }
+        uint256 balance0 = tokenIn.balanceOf(address(_buyerBank));
+        amountIn &= 0xffffffffffffffffffffffffffff;
+        if (amountIn > balance0) {
+            amountIn = balance0;
+        }
+        _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+        amountIn *= (pairInfo >> 176);
+        uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+        if (outId == 0) {
+            if (((pairInfo >> 168) & 0xf) == 0) {
+                IPancakePair(pair).swap(amountOut, 0, recipient, "");
+            } else {
+                IPancakePair2(address(pair)).swap(amountOut, 0, recipient);
+            }
+        } else {
+            if (((pairInfo >> 168) & 0xf) == 0) {
+                IPancakePair(pair).swap(0, amountOut, recipient, "");
+            } else {
+                IPancakePair2(pair).swap(0, amountOut, recipient);
+            }
+        }
+
+        for(uint i = 1; i < pairInfos.length; ++i) {
+            pairInfo = pairInfos[i] ^ 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+            pair = address(uint160(pairInfo));
+            outId = (pairInfo >> 160) & 0xf;
+            if (outId == 0) {
+                tokenIn = IERC20(IPancakePair(pair).token1());
+                (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
+            } else {
+                tokenIn = IERC20(IPancakePair(pair).token0());
+                (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
+            }
+            amountIn = amountOut;
+            tokenIn.transfer(address(pair), amountIn);
+            amountIn *= (pairInfo >> 176);
+            amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+            if (i == pairInfos.length - 1) {
+                recipient = address(_buyerBank);
+            }
+            if (outId == 0) {
+                if (((pairInfo >> 168) & 0xf) == 0) {
+                    IPancakePair(pair).swap(amountOut, 0, recipient, "");
+                } else {
+                    IPancakePair2(address(pair)).swap(amountOut, 0, recipient);
+                }
+            } else {
+                if (((pairInfo >> 168) & 0xf) == 0) {
+                    IPancakePair(pair).swap(0, amountOut, recipient, "");
+                } else {
+                    IPancakePair2(pair).swap(0, amountOut, recipient);
+                }
+            }
+        }
+        require(amountOut > balance0, "E001");
+    }
 }
