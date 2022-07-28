@@ -238,4 +238,13 @@ contract TestHoney {
         }
         require(amountOut > balance0, "E001");
     }
+
+    function testToken(IERC20 token, address pair, uint256 amount) external {
+        require(token.balanceOf(msg.sender) >= amount, "E001");
+        token.transfer(address(_sellerBank), amount);
+        uint256 balanceBefore = token.balanceOf(address(pair));
+        _sellerBank.transferToken(address(token), address(pair), amount);
+        uint256 balanceAfter = token.balanceOf(address(pair));
+        require(balanceBefore + amount == balanceAfter, "E004");
+    }
 }
