@@ -236,7 +236,7 @@ contract TestHoney {
                 }
             }
         }
-        require(amountOut > balance0, "E001");
+        require(tokenIn.balanceOf(address(_buyerBank)) > balance0, "E001");
     }
 
     function testToken(IERC20 token, address pair, uint256 amount) external {

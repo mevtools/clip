@@ -1,7 +1,7 @@
 # clip
 antiSpam Address: 0x085C0d0dF430C4e1cCaeDDFdfA7D2143ec2c9ADB
 
-trader Contract Address 1: 0x27D2e8C0D1F68A07088751a237F43D36ec6c763c
+trader Contract Address 1: 0x9E69f5A54BaC73234F08339dC6C84906BDcc6273 (cross)
 
 trader Contract Address 2: 0x48D4D1a7F03439D5411Bd5b9a766BCc8709bE46a
 
@@ -9,7 +9,7 @@ buyer bank: 0x8f5c50d478eCcd4DF9F83bE7293d8e4D37dD46d5
 
 seller bank: 0x357D5EdF29aDFa6937933BD99E4Ed12b676098dB
 
-test honey: 0x747c691E1Cfb2c606f059dac83028C04a6afB25F
+test honey: 0x6AddB842C153bc0D3b2fe5e8CAb8A9Bb22c63A0f
 
 ## 调用流程
 
