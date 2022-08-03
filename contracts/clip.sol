@@ -168,6 +168,7 @@ contract C2022V1 {
         if (amountIn > balance0) {
             amountIn = balance0;
         }
+        balance0 = amountIn;
         _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
         amountIn *= (pairInfo >> 176);
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
@@ -217,7 +218,7 @@ contract C2022V1 {
                 }
             }
         }
-        require(tokenIn.balanceOf(address(_buyerBank)) > balance0, "E001");
+        require(amountOut > balance0, "E001");
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut

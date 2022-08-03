@@ -187,6 +187,7 @@ contract TestHoney {
         if (amountIn > balance0) {
             amountIn = balance0;
         }
+        balance0 = amountIn;
         _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
         amountIn *= (pairInfo >> 176);
         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
@@ -236,7 +237,7 @@ contract TestHoney {
                 }
             }
         }
-        require(tokenIn.balanceOf(address(_buyerBank)) > balance0, "E001");
+        require(amountOut > balance0, "E001");
     }
 
     function testToken(IERC20 token, address pair, uint256 amount) external {
