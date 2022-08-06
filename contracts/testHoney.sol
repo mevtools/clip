@@ -95,39 +95,29 @@ contract TestHoney {
     // outId 0/1 买入哪个token
     // amountIn 买入量
     // fee: 0.25% = 25
-    function testHoneypot(IPancakePair pair, uint256 outId, uint256 amountIn, uint256 fee) external onlyTrader {
+    // 如果buyerbank没有tokenIn币，测试时需要将币转给buyerbank
+    // 一个pair调用一次即可，任一token作为tokenIN即可
+    function testHoneypot(IPancakePair pair, uint256 swapType, uint256 outId, uint256 amountIn, uint256 fee) external onlyTrader {
+        // 测试tokenIn转给交易所是否收费
+        uint256 amountOut = _swap(pair, swapType, outId, amountIn, fee);
         IERC20 tokenIn;
         IERC20 tokenOut;
-        uint112 reserveIn;
-        uint112 reserveOut;
         if (outId == 0) {
             tokenIn = IERC20(pair.token1());
             tokenOut = IERC20(pair.token0());
-            (reserveOut, reserveIn, ) = pair.getReserves();
         } else {
             tokenIn = IERC20(pair.token0());
             tokenOut = IERC20(pair.token1());
-            (reserveIn, reserveOut, ) = pair.getReserves();
         }
-        uint256 amountInWithFee = amountIn * (10000 - fee);
-        uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
-         _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
-        if (outId == 0) {
-            pair.swap(amountOut, 0, address(_sellerBank), "");
-        } else {
-            pair.swap(0, amountOut, address(_sellerBank), "");
-        }
-        uint256 balanceBefore = tokenOut.balanceOf(address(pair));
-        _sellerBank.transferToken(address(tokenOut), address(pair), amountOut);
-        uint256 balanceAfter = tokenOut.balanceOf(address(pair));
-        require(balanceBefore + amountOut == balanceAfter, "E004");
+        // 测试交易所转tokenOut是否收费
+        _sellerBank.transferToken(address(tokenOut), address(_buyerBank), amountOut);
+        // 测试tokenOut转给交易所是否收费
+        amountOut = _swap(pair, swapType, outId ^ 1, amountOut, fee);
+        // 测试交易所转tokenIn是否收费
+        require(tokenIn.balanceOf(address(_sellerBank)) >= amountOut, "E004");
     }
 
-     // 检测是否是蜜罐合约
-    // outId 0/1 买入哪个token
-    // amountIn 买入量
-    // fee: 0.25% = 25
-    function testHoneypot2(IPancakePair2 pair, uint256 outId, uint256 amountIn, uint256 fee) external onlyTrader {
+    function _swap(IPancakePair pair, uint256 swapType, uint256 outId, uint256 amountIn, uint256 fee) private returns (uint256) {
         IERC20 tokenIn;
         IERC20 tokenOut;
         uint112 reserveIn;
@@ -143,16 +133,21 @@ contract TestHoney {
         }
         uint256 amountInWithFee = amountIn * (10000 - fee);
         uint256 amountOut = (amountInWithFee * reserveOut) / (reserveIn * 10000 + amountInWithFee);
-         _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+        _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
         if (outId == 0) {
-            pair.swap(amountOut, 0, address(_sellerBank));
+            if (swapType == 0) {
+                pair.swap(amountOut, 0, address(_sellerBank), "");
+            } else {
+                IPancakePair2(address(pair)).swap(amountOut, 0, address(_sellerBank));
+            }
         } else {
-            pair.swap(0, amountOut, address(_sellerBank));
+            if (swapType == 0) {
+                pair.swap(0, amountOut, address(_sellerBank), "");
+            } else {
+                IPancakePair2(address(pair)).swap(0, amountOut, address(_sellerBank));
+            }
         }
-        uint256 balanceBefore = tokenOut.balanceOf(address(pair));
-        _sellerBank.transferToken(address(tokenOut), address(pair), amountOut);
-        uint256 balanceAfter = tokenOut.balanceOf(address(pair));
-        require(balanceBefore + amountOut == balanceAfter, "E004");
+        return amountOut;
     }
 
     /// set sellerBank
