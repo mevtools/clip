@@ -334,6 +334,7 @@ contract C2022V1 {
     /// minReserveOut 可设置为256[fee]120[type]112[maxReserveIn+amoutIn*0.9]0
     /// 不断发送交易，直到该交易成功
     /// 如果发现被夹交易已上链，则发送个minReserveOut小的交易（比如0）使能够顺利卖出
+    // fee: 0.25% = 9975
     function trySellToken0(uint256 requestId, uint256 minReserveOut) external onlyTrader {
         requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
         uint256 amountIn = tradeInfo[requestId];
@@ -358,6 +359,7 @@ contract C2022V1 {
     /// 试着卖出Token
     /// minReserveOut为卖出时最小可接受的reserve值
     /// minReserveOut 可设置为256[fee]120[type]112[maxReserveIn+amoutIn*0.9]0
+    // fee: 0.25% = 9975
     function trySellToken1(uint256 requestId, uint256 minReserveOut) external onlyTrader {
         requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
         uint256 amountIn = tradeInfo[requestId];
@@ -377,7 +379,8 @@ contract C2022V1 {
         }
         delete tradeInfo[requestId];
     }
-
+    
+    // fee: 0.25% = 9975
     function sellToken0WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader {
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
         _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
@@ -389,7 +392,8 @@ contract C2022V1 {
             IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank));
         }
     }
-
+    
+    // fee: 0.25% = 9975
     function sellToken1WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader {
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
         _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
