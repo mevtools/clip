@@ -342,7 +342,7 @@ contract C2022V1 {
         IPancakePair pair = IPancakePair(address(uint160(requestId)));
 
         (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
-        require(reserveOut >= minReserveOut, "E003");
+        require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
 
         _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
 
@@ -367,7 +367,7 @@ contract C2022V1 {
         IPancakePair pair = IPancakePair(address(uint160(requestId)));
 
         (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
-        require(reserveOut >= minReserveOut, "E003");
+        require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
 
         _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
 
