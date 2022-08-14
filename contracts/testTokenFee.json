@@ -1,0 +1,41 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "pair",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "getTokenFee",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "fromPair",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "toPair",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	}
+]

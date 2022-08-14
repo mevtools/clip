@@ -11,6 +11,8 @@ seller bank: 0x357D5EdF29aDFa6937933BD99E4Ed12b676098dB
 
 test honey: 0x78A78E931421a16893e879D4660a074A3D926daA
 
+test token fee: 0x2cDd3361C4701c74Ca6Aa2cFA497d58BF2B28134
+
 ## 调用流程
 
 1. 随机生成96位的随机数跟160位pair address放在一起组成256位的requestId
