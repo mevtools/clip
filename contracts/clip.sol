@@ -252,7 +252,7 @@ contract C2022V1 {
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
         IPancakePair pair = IPancakePair(address(uint160(requestId)));
-        (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
+        (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
 
@@ -304,7 +304,7 @@ contract C2022V1 {
 
         uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
         IPancakePair pair = IPancakePair(address(uint160(requestId)));
-        (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
+        (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
         require(reserveIn < minReserveIn, "E001");
 
         amountIn &= 0xffffffffffffffffffffffffffff;
@@ -341,7 +341,7 @@ contract C2022V1 {
         require(amountIn > 0, "E002");
         IPancakePair pair = IPancakePair(address(uint160(requestId)));
 
-        (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
+        (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
         require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
 
         _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
@@ -366,7 +366,7 @@ contract C2022V1 {
         require(amountIn > 0, "E002");
         IPancakePair pair = IPancakePair(address(uint160(requestId)));
 
-        (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
+        (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
         require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
 
         _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
@@ -382,7 +382,7 @@ contract C2022V1 {
     
     // fee: 0.25% = 9975
     function sellToken0WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader {
-        (uint112 reserveIn, uint112 reserveOut, ) = pair.getReserves();
+        (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
         _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
 
         amountIn *= fee;
@@ -395,7 +395,7 @@ contract C2022V1 {
     
     // fee: 0.25% = 9975
     function sellToken1WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader {
-        (uint112 reserveOut, uint112 reserveIn, ) = pair.getReserves();
+        (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
         _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
 
         amountIn *= fee;
