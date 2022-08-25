@@ -294,7 +294,7 @@ contract CROSS2022V1 {
                     }
                 }
             }
-
+            require(amountOut > amountBack, "E001");
             if (outId == 0) {
                 IERC20(IPancakePair(pair).token0()).transfer(sender, amountBack);
             } else {
