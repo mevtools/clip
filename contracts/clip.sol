@@ -242,6 +242,11 @@ contract C2022V1 {
         // decrypt
         requestId ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
+        IPancakePair pair = IPancakePair(address(uint160(requestId)));
+        (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
+        require(reserveIn < minReserveIn, "E001");
+
         victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -250,10 +255,6 @@ contract C2022V1 {
         require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
         require(block.coinbase == _coinbases[block.number % 21] , "E004");
 
-        uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
-        IPancakePair pair = IPancakePair(address(uint160(requestId)));
-        (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
-        require(reserveIn < minReserveIn, "E001");
         IERC20 tokenIn = IERC20(pair.token0());
 
         amountIn &= 0xffffffffffffffffffffffffffff;
@@ -294,6 +295,11 @@ contract C2022V1 {
         // decrypt
         requestId ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+        uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
+        IPancakePair pair = IPancakePair(address(uint160(requestId)));
+        (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
+        require(reserveIn < minReserveIn, "E001");
+        
         victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
         tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -301,11 +307,6 @@ contract C2022V1 {
         require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
         require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
         require(block.coinbase == _coinbases[block.number % 21] , "E004");
-
-        uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
-        IPancakePair pair = IPancakePair(address(uint160(requestId)));
-        (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
-        require(reserveIn < minReserveIn, "E001");
 
         amountIn &= 0xffffffffffffffffffffffffffff;
         IERC20 tokenIn = IERC20(pair.token1());
