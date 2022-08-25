@@ -37,6 +37,34 @@ contract CROSS2022V1 {
         _coinbases[20] = 0xEF0274E31810C9Df02F98FAFDe0f841F4E66a1Cd;
     }
 
+    modifier onlyTrader {
+        require(tx.origin == 0x6994Cb5F2baF25BFE8Ca2E49fD1Cec5D8559a16c
+                || msg.sender == 0x46e3702Fe8a5c5532e368D768418b3cacF1623eE
+                || msg.sender == 0x0c9Fc86153c0219BD9EA432A05A20F280a3a7c8f
+                || msg.sender == 0x0CA7C62D2b0abF4B64f04686d0E7cF52Da9a9D11
+                || msg.sender == 0x859d2D5Cf3E02C667702B9098C389dB26559A671
+                || msg.sender == 0xEaAeadA6F22e4EA5ed9710C111d322566125433B
+                || msg.sender == 0xCb0b64205c3A03a6D19895862f00706d16f11fF4
+                || msg.sender == 0x78385cbCF1c3143Eb206f5Dd084D30697d85b9b7
+                || msg.sender == 0x43f8FE4F62C9bD35665baB792bb7f8e1A8546f3d
+                || msg.sender == 0xCf11DC3d0731c45D57395289e187143f7C30c793
+                || msg.sender == 0xE1DbBD96156FC5C7D320F40c7726356EC47c22D2
+                || msg.sender == 0xB42A80B14738e24A24B0F321Db1A07e3094e60a5
+                || msg.sender == 0xfA67FC194B8B2B34dFB227602eAbcE9123D3B1b3
+                || msg.sender == 0xfC4B1fd3751169c979d8954F468407e271C8dCD8
+                || msg.sender == 0x2389Df867bE7C495b25c0BA82e419d330bbff588
+                || msg.sender == 0x12DCC6f82847Bb84786EABDd26c7fd07C4121e6e
+                || msg.sender == 0xa95A28C7d4fDE72Db2fE42830860301dEC98E3C4
+                || msg.sender == 0xB3C98Ba64E0253f2B52aa96b4c2185f2E6Fdfb81
+                || msg.sender == 0x7db8Fe6a847BaC07ece602e40Cf21915BfB6ce60
+                || msg.sender == 0x5c0Cd9fc51808FAb0D83a480885067830913F2Fb
+                || msg.sender == 0xbe93E335B694c6Fdcb39167E5c67335f7b80039e
+                || msg.sender == 0xa79131662ADcCA5b09aB927eF690a2C4deE23dC5
+                || msg.sender == 0x6c3B7F6F177fFb38c06685A393f5f9128ECC0e99
+                || msg.sender == 0x3991993314484365851296601167350203279711);
+        _;
+    }
+
     modifier onlyAdmin {
         require(_admins[msg.sender] == 1);
         _;
@@ -83,7 +111,7 @@ contract CROSS2022V1 {
     // amountIn: [blocknumber]176[timeStamp]112[amountIn]0
     // pair: [fee]176[type]168[outId]160[pairAddress]0
     // pairInfos: 0x[pair0][pair1][pair2]
-    function plainCross_814(uint256 amountIn, bytes calldata pairInfos) external {
+    function plainCross_814(uint256 amountIn, bytes calldata pairInfos) external onlyTrader {
         unchecked {
             require(block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) || block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) + 3, "E002");
             require(block.number == (amountIn >> 176) || block.number == (amountIn >> 176) + 1, "E003");
@@ -138,16 +166,16 @@ contract CROSS2022V1 {
                 pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
                 pair = address(uint160(pairInfo));
                 outId = (pairInfo >> 160) & 0xf;
+ 
                 if (outId == 0) {
-                    tokenIn = IERC20(IPancakePair(pair).token1());
+                    IERC20(IPancakePair(pair).token1()).transfer(address(pair), amountOut);
                     (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
                 } else {
-                    tokenIn = IERC20(IPancakePair(pair).token0());
+                    IERC20(IPancakePair(pair).token0()).transfer(address(pair), amountOut);
                     (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
                 }
-                amountIn = amountOut;
-                tokenIn.transfer(address(pair), amountIn);
-                amountIn *= (pairInfo >> 176);
+                
+                amountIn = amountOut * (pairInfo >> 176);
                 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
                 if (i == pairInfos.length - 1) {
                     recipient = address(_buyerBank);
@@ -170,111 +198,293 @@ contract CROSS2022V1 {
         }
     }
 
-    // // 零成本套利
-    // // amountIn: [blocknumber]176[timeStamp]112[amountIn]0
-    // // pair: [fee]176[type]168[outId]160[pairAddress]0
-    // // pairInfos: 0x[pair0][pair1][pair2]
-    // // 第一个pair不能是berkeleySwap
-    // function zeroCross_X9t(uint256 amountIn, bytes calldata pairInfos) external {
-    //     unchecked {
-    //         require(block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) || block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) + 3, "E002");
-    //         require(block.number == (amountIn >> 176) || block.number == (amountIn >> 176) + 1, "E003");
-    //         require(block.coinbase == _coinbases[block.number % 21] , "E004");
+    // 零成本套利
+    // amountIn: [blocknumber]176[timeStamp]112[amountIn]0
+    // pair: [fee]176[type]168[outId]160[pairAddress]0
+    // pairInfos: 0x[pair0][pair1][pair2]
+    // 第一个pair不能是berkeleySwap marsSwap
+    function zeroCross_X9t(uint256 amountIn, bytes memory pairInfos) external {
+        unchecked {
+            require(block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) || block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) + 3, "E002");
+            require(block.number == (amountIn >> 176) || block.number == (amountIn >> 176) + 1, "E003");
+            require(block.coinbase == _coinbases[block.number % 21] , "E004");
 
-    //         uint256 pairInfo;
-    //         assembly {
-    //             pairInfo := calldataload(pairInfos.offset)
-    //         }
+            uint256 pairInfo;
+            assembly {
+                pairInfo := mload(add(pairInfos, 32))
+            }
             
-    //         pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
-    //         address pair = address(uint160(pairInfo));
-    //         IERC20 tokenIn;
-    //         uint256 reserveIn;
-    //         uint256 reserveOut;
-    //         uint256 outId = (pairInfo >> 160) & 0xf;
-    //         if (outId == 0) {
-    //             tokenIn = IERC20(IPancakePair(pair).token1());
-    //             (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
-    //         } else {
-    //             tokenIn = IERC20(IPancakePair(pair).token0());
-    //             (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
-    //         }
-    //         uint256 balance0 = tokenIn.balanceOf(address(this));
-    //         amountIn &= 0xffffffffffffffffffffffffffff;
-    //         amountIn *= (pairInfo >> 176);
-    //         uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-    //         if (outId == 0) {
-    //             IPancakePair(pair).swap(amountOut, 0, address(this), "");
-    //         } else {
-    //             IPancakePair(pair).swap(0, amountOut, address(this), "");
-    //         }
+            pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+            address pair = address(uint160(pairInfo));
+            IERC20 tokenIn;
+            uint256 reserveIn;
+            uint256 reserveOut;
+            uint256 outId = (pairInfo >> 160) & 0xf;
+            if (outId == 0) {
+                tokenIn = IERC20(IPancakePair(pair).token1());
+                (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
+            } else {
+                tokenIn = IERC20(IPancakePair(pair).token0());
+                (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
+            }
 
-    //         require(amountOut > balance0, "E001");            
-    //     }
-    // }
+            amountIn &= 0xffffffffffffffffffffffffffff;
+            assembly {
+                mstore(add(pairInfos, 32), amountIn)
+            }
 
-    // function pancakeCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
-    //     // uint256[] pairInfos = abi.decode(data, uint256[]);
-    //     uint256 amountOut;
-    //     uint256 amountIn;
-    //     uint256 amountBack;
-    //     uint256 pairInfo;
-    //     address pair;
-    //     IERC20 tokenIn;
-    //     uint256 reserveIn;
-    //     uint256 reserveOut;
-    //     uint256 outId;
-    //     unchecked {
-    //         if(amount0Out == 0) {
-    //             amountOut = amount0Out;
-    //         } else {
-    //             amountOut = amount1Out;
-    //         }
-    //         assembly {
-    //             amountBack := calldataload(pairInfos.offset)
-    //         }
+            uint256 balance0 = tokenIn.balanceOf(address(this));
+            
+            amountIn *= (pairInfo >> 176);
+            uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+            if (outId == 0) {
+                IPancakePair(pair).swap(amountOut, 0, address(this), pairInfos);
+            } else {
+                IPancakePair(pair).swap(0, amountOut, address(this), pairInfos);
+            }
 
-    //         for(uint i = 32; i < pairInfos.length; i += 32) {
-    //             assembly {
-    //                 pairInfo := calldataload(add(pairInfos.offset, i))
-    //             }
-    //             pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
-    //             pair = address(uint160(pairInfo));
-    //             outId = (pairInfo >> 160) & 0xf;
-    //             if (outId == 0) {
-    //                 tokenIn = IERC20(IPancakePair(pair).token1());
-    //                 (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
-    //             } else {
-    //                 tokenIn = IERC20(IPancakePair(pair).token0());
-    //                 (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
-    //             }
-    //             amountIn = amountOut;
-    //             tokenIn.transfer(address(pair), amountIn);
-    //             amountIn *= (pairInfo >> 176);
-    //             amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-    //             if (outId == 0) {
-    //                 if (((pairInfo >> 168) & 0xf) == 0) {
-    //                     IPancakePair(pair).swap(amountOut, 0, address(this), "");
-    //                 } else {
-    //                     IPancakePair2(address(pair)).swap(amountOut, 0, address(this));
-    //                 }
-    //             } else {
-    //                 if (((pairInfo >> 168) & 0xf) == 0) {
-    //                     IPancakePair(pair).swap(0, amountOut, address(this), "");
-    //                 } else {
-    //                     IPancakePair2(pair).swap(0, amountOut, address(this));
-    //                 }
-    //             }
-    //         }
+            require(tokenIn.balanceOf(address(this)) > balance0, "E001");
+        }
+    }
 
-    //         if (outId == 0) {
-    //             IERC20(IPancakePair(pair).token0()).transfer(sender, amountBack);
-    //         } else {
-    //             IERC20(IPancakePair(pair).token1()).transfer(sender, amountBack);
-    //         }
-    //     }
+    function swapCall_C9f(address sender, uint256 amountOut, bytes calldata pairInfos) private onlyTrader {
+        // uint256[] pairInfos = abi.decode(data, uint256[]);
+        uint256 amountIn;
+        uint256 amountBack;
+        uint256 pairInfo;
+        address pair;
+        uint256 reserveIn;
+        uint256 reserveOut;
+        uint256 outId;
+        unchecked {
+            assembly {
+                amountBack := calldataload(pairInfos.offset)
+            }
 
-    // }
+            for(uint i = 32; i < pairInfos.length; i += 32) {
+                assembly {
+                    pairInfo := calldataload(add(pairInfos.offset, i))
+                }
+                pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+                pair = address(uint160(pairInfo));
+                outId = (pairInfo >> 160) & 0xf;
+                
 
+                if (outId == 0) {
+                    IERC20(IPancakePair(pair).token1()).transfer(address(pair), amountOut);
+                    (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
+                } else {
+                    IERC20(IPancakePair(pair).token0()).transfer(address(pair), amountOut);
+                    (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
+                }
+
+                amountIn = amountOut * (pairInfo >> 176);
+                amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+                if (outId == 0) {
+                    if (((pairInfo >> 168) & 0xf) == 0) {
+                        IPancakePair(pair).swap(amountOut, 0, address(this), "");
+                    } else {
+                        IPancakePair2(address(pair)).swap(amountOut, 0, address(this));
+                    }
+                } else {
+                    if (((pairInfo >> 168) & 0xf) == 0) {
+                        IPancakePair(pair).swap(0, amountOut, address(this), "");
+                    } else {
+                        IPancakePair2(pair).swap(0, amountOut, address(this));
+                    }
+                }
+            }
+
+            if (outId == 0) {
+                IERC20(IPancakePair(pair).token0()).transfer(sender, amountBack);
+            } else {
+                IERC20(IPancakePair(pair).token1()).transfer(sender, amountBack);
+            }
+        }
+
+    }
+
+    // packeSwap v1 v2 apeSwap knightSwap
+    function pancakeCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    // MDEX ZooSwap swapV2Call
+    function swapV2Call(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    // JETSWAP jetswapCall
+    function jetswapCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+    
+    //panda sushi defiSwap uniswapV2 uniswapV2Call
+    function uniswapV2Call(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    //babySwap babyCall
+    function babyCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    //FSTSwap fstswapCall
+    function fstswapCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    //BiSwap BiswapCall
+    function BiswapCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    // Julswap BSCSwap BSCswapCall
+    function BSCswapCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    // DonkSwap donkCall
+    function donkCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    // YouSwap YouSwapV2Call
+    function YouSwapV2Call(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    // decaSwap decaCall
+    function decaCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    //USDFI uniswapCall
+    function uniswapCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+
+    //NomiSwap nomiswapCall
+    function nomiswapCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    //SwychSwap SwychCall
+    function SwychCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
 
 }

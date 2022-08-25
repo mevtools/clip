@@ -3,6 +3,174 @@
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "babyCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "BiswapCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "BSCswapCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "decaCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "donkCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "fstswapCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "user",
 				"type": "address"
 			}
@@ -21,6 +189,90 @@
 			}
 		],
 		"name": "grantWithdrawals",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "jetswapCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "nomiswapCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "pancakeCall",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -86,12 +338,124 @@
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "swapV2Call",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "SwychCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "buyerBank",
 				"type": "address"
 			}
 		],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "uniswapCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "uniswapV2Call",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -148,6 +512,52 @@
 			}
 		],
 		"name": "withdrawETH",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "YouSwapV2Call",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "zeroCross_X9t",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
