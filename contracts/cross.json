@@ -390,7 +390,7 @@
 				"type": "bytes"
 			}
 		],
-		"name": "plainCross_814",
+		"name": "plainCross_ejJ",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -595,7 +595,7 @@
 				"type": "bytes"
 			}
 		],
-		"name": "zeroCross_X9t",
+		"name": "zeroCross_XrY",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
