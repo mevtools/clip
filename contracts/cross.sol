@@ -333,9 +333,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
