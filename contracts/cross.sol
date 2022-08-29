@@ -109,25 +109,41 @@ contract CROSS2022V1 {
     }
     
     // amountIn: [blocknumber]176[timeStamp]112[amountIn]0
+    // minReserveOut: [index]112[reserveIn + amountIn]0, index为用户买入pair的下标，reserveIn+amountIn为买入后的reserveIn 
     // pair: [fee]176[type]168[outId]160[pairAddress]0
     // pairInfos: 0x[pair0][pair1][pair2]
-    function plainCross_814(uint256 amountIn, bytes calldata pairInfos) external onlyTrader {
+    function plainCross_ejJ(uint256 amountIn, uint256 minReserveOut, bytes calldata pairInfos) external onlyTrader {
         unchecked {
+            // 检查是否已经被抢
+            uint256 pairInfo;
+            IERC20 tokenIn;
+            uint256 reserveIn;
+            uint256 reserveOut;
+            
+            assembly {
+                pairInfo := calldataload(add(pairInfos.offset, shl(5, shr(112, minReserveOut))))
+            }
+            pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+            address pair = address(uint160(pairInfo));
+            uint256 outId = (pairInfo >> 160) & 0xf;
+            if (outId == 0) {
+                (reserveOut, , ) = IPancakePair(pair).getReserves();
+            } else {
+                (, reserveOut, ) = IPancakePair(pair).getReserves();
+            }
+            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E005");
+
             require(block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) || block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) + 3, "E002");
             require(block.number == (amountIn >> 176) || block.number == (amountIn >> 176) + 1, "E003");
             require(block.coinbase == _coinbases[block.number % 21] , "E004");
 
-            uint256 pairInfo;
             assembly {
                 pairInfo := calldataload(pairInfos.offset)
             }
             
             pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
-            address pair = address(uint160(pairInfo));
-            IERC20 tokenIn;
-            uint256 reserveIn;
-            uint256 reserveOut;
-            uint256 outId = (pairInfo >> 160) & 0xf;
+            pair = address(uint160(pairInfo));
+            outId = (pairInfo >> 160) & 0xf;
             address recipient = address(this);
             if (outId == 0) {
                 tokenIn = IERC20(IPancakePair(pair).token1());
@@ -177,8 +193,9 @@ contract CROSS2022V1 {
                 
                 amountIn = amountOut * (pairInfo >> 176);
                 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-                if (i == pairInfos.length - 1) {
+                if (i == pairInfos.length - 32) {
                     recipient = address(_buyerBank);
+                    require(amountOut > balance0, "E001");
                 }
                 if (outId == 0) {
                     if (((pairInfo >> 168) & 0xf) == 0) {
@@ -193,33 +210,48 @@ contract CROSS2022V1 {
                         IPancakePair2(pair).swap(0, amountOut, recipient);
                     }
                 }
-            }
-            require(amountOut > balance0, "E001");            
+            }    
         }
     }
 
     // 零成本套利
     // amountIn: [blocknumber]176[timeStamp]112[amountIn]0
+    // minReserveOut: [index]112[reserveIn + amountIn]0, index为用户买入pair的下标，reserveIn+amountIn为买入后的reserveIn
     // pair: [fee]176[type]168[outId]160[pairAddress]0
     // pairInfos: 0x[pair0][pair1][pair2]
     // 第一个pair不能是berkeleySwap marsSwap
-    function zeroCross_X9t(uint256 amountIn, bytes memory pairInfos) external {
+    function zeroCross_XrY(uint256 amountIn, uint256 minReserveOut, bytes memory pairInfos) external {
         unchecked {
+            // 检查是否已经被抢
+            uint256 pairInfo;
+            IERC20 tokenIn;
+            uint256 reserveIn;
+            uint256 reserveOut;
+            
+            assembly {
+                pairInfo := mload(add(pairInfos, add(32, shl(5, shr(112, minReserveOut)))))
+            }
+            pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+            address pair = address(uint160(pairInfo));
+            uint256 outId = (pairInfo >> 160) & 0xf;
+            if (outId == 0) {
+                (reserveOut, , ) = IPancakePair(pair).getReserves();
+            } else {
+                (, reserveOut, ) = IPancakePair(pair).getReserves();
+            }
+            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E005");
+
             require(block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) || block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) + 3, "E002");
             require(block.number == (amountIn >> 176) || block.number == (amountIn >> 176) + 1, "E003");
             require(block.coinbase == _coinbases[block.number % 21] , "E004");
 
-            uint256 pairInfo;
             assembly {
                 pairInfo := mload(add(pairInfos, 32))
             }
             
             pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
-            address pair = address(uint160(pairInfo));
-            IERC20 tokenIn;
-            uint256 reserveIn;
-            uint256 reserveOut;
-            uint256 outId = (pairInfo >> 160) & 0xf;
+            pair = address(uint160(pairInfo));
+            outId = (pairInfo >> 160) & 0xf;
             if (outId == 0) {
                 tokenIn = IERC20(IPancakePair(pair).token1());
                 (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
@@ -269,7 +301,6 @@ contract CROSS2022V1 {
                 pair = address(uint160(pairInfo));
                 outId = (pairInfo >> 160) & 0xf;
                 
-
                 if (outId == 0) {
                     IERC20(IPancakePair(pair).token1()).transfer(address(pair), amountOut);
                     (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
@@ -294,7 +325,7 @@ contract CROSS2022V1 {
                     }
                 }
             }
-            require(amountOut > amountBack, "E001");
+            require(amountOut > amountBack, "E002");
             if (outId == 0) {
                 IERC20(IPancakePair(pair).token0()).transfer(sender, amountBack);
             } else {
@@ -476,6 +507,19 @@ contract CROSS2022V1 {
 
     //SwychSwap SwychCall
     function SwychCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
+        uint256 amountOut;
+        unchecked {
+            if(amount0Out == 0) {
+                amountOut = amount0Out;
+            } else {
+                amountOut = amount1Out;
+            }
+            swapCall_C9f(sender, amountOut, pairInfos);
+        }
+    }
+
+    //TeddySwap pangolinCall
+    function pangolinCall(address sender, uint256 amount0Out, uint256 amount1Out, bytes calldata pairInfos) external {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {

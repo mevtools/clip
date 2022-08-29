@@ -3,6 +3,17 @@
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "buyerBank",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "sender",
 				"type": "address"
 			},
@@ -22,7 +33,7 @@
 				"type": "bytes"
 			}
 		],
-		"name": "babyCall",
+		"name": "BSCswapCall",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -78,7 +89,63 @@
 				"type": "bytes"
 			}
 		],
-		"name": "BSCswapCall",
+		"name": "SwychCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "YouSwapV2Call",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "babyCall",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -280,8 +347,41 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount0Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount1Out",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "pairInfos",
+				"type": "bytes"
+			}
+		],
+		"name": "pangolinCall",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
 				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "minReserveOut",
 				"type": "uint256"
 			},
 			{
@@ -361,45 +461,6 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "sender",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount0Out",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount1Out",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bytes",
-				"name": "pairInfos",
-				"type": "bytes"
-			}
-		],
-		"name": "SwychCall",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "buyerBank",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
 	},
 	{
 		"inputs": [
@@ -519,36 +580,13 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "sender",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount0Out",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount1Out",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bytes",
-				"name": "pairInfos",
-				"type": "bytes"
-			}
-		],
-		"name": "YouSwapV2Call",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "uint256",
 				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "minReserveOut",
 				"type": "uint256"
 			},
 			{

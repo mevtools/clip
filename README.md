@@ -15,7 +15,7 @@ test token fee: 0x2cDd3361C4701c74Ca6Aa2cFA497d58BF2B28134
 
 test buyer: 0xA7f4Bd3A2bFBf9Db4dE6E5A0dCE4720be4F2bDD2
 
-trader cross: 0xCDBe6ADC2067115d751A55a2D73A20E8caF8f9e3
+trader cross: 0x601CCa38FC510dFbd926468d18d0Db1DBB49cb64
 
 ## 三角套利流程
 
@@ -201,3 +201,53 @@ https://medium.com/@t.tak/how-to-reduce-gas-cost-in-solidity-f2e5321e0395#8a0a
 0x0000000000000000000000008394eccd5637cad3b4615af6dbe6f6d3b4305a0f0000000000000000000000008394eccd5637cad3b4615af6dbe6f6d3b4305a0f0000000000000000000000008394eccd5637cad3b4615af6dbe6f6d3b4305a0f0000000000000000000000008394eccd5637cad3b4615af6dbe6f6d3b4305a0f0000000000000000000000008394eccd5637cad3b4615af6dbe6f6d3b4305a0f
 
 [751198929639273921894512153403534839782038329871,751198929639273921894512153403534839782038329871,751198929639273921894512153403534839782038329871,751198929639273921894512153403534839782038329871,751198929639273921894512153403534839782038329871]
+
+
+返回结果这样：
+
+INFO [08-26|06:38:57.703] found space for cycle arbitrage          during=25.657353ms amountIn=643848028244175196282752  reward=1885292811939391529995961
+INFO [08-26|06:38:57.704] [+]                                      pair=0xD59F2D2428A590627579BA87F6582235963d3840 fee=9970
+INFO [08-26|06:38:57.704] [+]                                      token0=0x04fA9Eb295266d9d4650EDCB879da204887Dc3Da token1=0x55d398326f99059fF775485246999027B3197955 outId=0
+INFO [08-26|06:38:57.704] [+]                                      reserve0=1606621048405967435962940         reserve1=11575181119684986302530652
+INFO [08-26|06:38:57.704] [+]                                      pair=0xD59F2D2428A590627579BA87F6582235963d3840 fee=9970
+INFO [08-26|06:38:57.704] [+]                                      token0=0x04fA9Eb295266d9d4650EDCB879da204887Dc3Da token1=0x55d398326f99059fF775485246999027B3197955 outId=1
+INFO [08-26|06:38:57.704] [+]                                      reserve0=1606621048405967435962940         reserve1=11575181119684986302530652
+INFO [08-26|06:38:57.704] [+]                                      pair=0xA39Af17CE4a8eb807E076805Da1e2B8EA7D0755b fee=9975
+INFO [08-26|06:38:57.704] [+]                                      token0=0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82 token1=0x55d398326f99059fF775485246999027B3197955 outId=0
+INFO [08-26|06:38:57.704] [+]                                      reserve0=1119337994664986100838391         reserve1=4421219152105880621503928
+INFO [08-26|06:38:57.704] [+]                                      pair=0xA39Af17CE4a8eb807E076805Da1e2B8EA7D0755b fee=9975
+INFO [08-26|06:38:57.704] [+]                                      token0=0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82 token1=0x55d398326f99059fF775485246999027B3197955 outId=1
+INFO [08-26|06:38:57.704] [+]                                      reserve0=1119337994664986100838391         reserve1=4421219152105880621503928
+WARN [08-26|06:38:57.705] this cross can not pass simulation       err="execution reverted: E001"
+
+
+INFO [08-26|07:32:07.593] found space for cycle arbitrage          during=1.607555ms  amountIn=2267353657837            reward=51339878988970632870241
+INFO [08-26|07:32:07.593] [+]                                      pair=0xED933Ba0B104fe93f3297ACd085B1ED66D06992B fee=9970
+INFO [08-26|07:32:07.593] [+]                                      token0=0x2AA504586d6CaB3C59Fa629f74c586d78b93A025 token1=0x55d398326f99059fF775485246999027B3197955 outId=0
+INFO [08-26|07:32:07.593] [+]                                      reserve0=16225205361801853109         reserve1=10312321474235240381
+INFO [08-26|07:32:07.593] [+]                                      pair=0x3DE032D5D11c94d2d79dBa0c34D7851FFAA05DD8 fee=9975
+INFO [08-26|07:32:07.593] [+]                                      token0=0x2AA504586d6CaB3C59Fa629f74c586d78b93A025 token1=0x55d398326f99059fF775485246999027B3197955 outId=1
+INFO [08-26|07:32:07.593] [+]                                      reserve0=4156192058004437052192572    reserve1=2651363364660796268702790
+INFO [08-26|07:32:07.593] [+]                                      pair=0x2c5d15eD83e7465B55845c6B245B0d40d173e8aD fee=9975
+INFO [08-26|07:32:07.593] [+]                                      token0=0x55d398326f99059fF775485246999027B3197955 token1=0xe8670901E86818745b28C8b30B17986958fCe8Cc outId=1
+INFO [08-26|07:32:07.593] [+]                                      reserve0=51218059081865680164058      reserve1=2265004402137
+INFO [08-26|07:32:07.593] [+]                                      pair=0x2c5d15eD83e7465B55845c6B245B0d40d173e8aD fee=9975
+INFO [08-26|07:32:07.593] [+]                                      token0=0x55d398326f99059fF775485246999027B3197955 token1=0xe8670901E86818745b28C8b30B17986958fCe8Cc outId=0
+INFO [08-26|07:32:07.593] [+]                                      reserve0=51218059081865680164058      reserve1=2265004402137
+WARN [08-26|07:32:07.595] this cross can not pass simulation       err="execution reverted: Pancake: K"
+
+
+INFO [08-26|09:30:01.789] found space for cycle arbitrage          during="140.473µs" amountIn=457335438680732330172018       reward=3432773069525646578672418
+INFO [08-26|09:30:01.789] [0]                                      pair=0xD59F2D2428A590627579BA87F6582235963d3840 fee=9970
+INFO [08-26|09:30:01.789] [+]                                      token0=0x04fA9Eb295266d9d4650EDCB879da204887Dc3Da token1=0x55d398326f99059fF775485246999027B3197955 outId=0
+INFO [08-26|09:30:01.789] [+]                                      reserve0=1624014252855293376892506         reserve1=11616405108551985782000081
+INFO [08-26|09:30:01.789] [1]                                      pair=0xD59F2D2428A590627579BA87F6582235963d3840 fee=9970
+INFO [08-26|09:30:01.789] [+]                                      token0=0x04fA9Eb295266d9d4650EDCB879da204887Dc3Da token1=0x55d398326f99059fF775485246999027B3197955 outId=1
+INFO [08-26|09:30:01.789] [+]                                      reserve0=1624014252855293376892506         reserve1=11616405108551985782000081
+INFO [08-26|09:30:01.789] [2]                                      pair=0x4088e197c97d0188EFBF77B316100Ac456aB4eca fee=9975
+INFO [08-26|09:30:01.789] [+]                                      token0=0x55d398326f99059fF775485246999027B3197955 token1=0xC544D8aB2b5ED395B96E3Ec87462801ECa579aE1 outId=1
+INFO [08-26|09:30:01.789] [+]                                      reserve0=581912592452221665799965          reserve1=4977014300984279614466975
+INFO [08-26|09:30:01.789] [3]                                      pair=0x4088e197c97d0188EFBF77B316100Ac456aB4eca fee=9975
+INFO [08-26|09:30:01.789] [+]                                      token0=0x55d398326f99059fF775485246999027B3197955 token1=0xC544D8aB2b5ED395B96E3Ec87462801ECa579aE1 outId=0
+INFO [08-26|09:30:01.789] [+]                                      reserve0=581912592452221665799965          reserve1=4977014300984279614466975
+WARN [08-26|09:30:01.790] this cross can not pass simulation       err="execution reverted: E001"
