@@ -115,8 +115,7 @@ contract CROSS2022V1 {
     function plainCross_ejJ(uint256 amountIn, uint256 minReserveOut, bytes calldata pairInfos) external onlyTrader {
         unchecked {
             // 检查是否已经被抢
-            uint256 pairInfo;
-            IERC20 tokenIn;
+            uint256 pairInfo;          
             uint256 reserveIn;
             uint256 reserveOut;
             
@@ -124,90 +123,99 @@ contract CROSS2022V1 {
                 pairInfo := calldataload(add(pairInfos.offset, shl(5, shr(112, minReserveOut))))
             }
             pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
-            address pair = address(uint160(pairInfo));
+            // address pair = address(uint160(pairInfo));
             uint256 outId = (pairInfo >> 160) & 0xf;
             if (outId == 0) {
-                (reserveOut, , ) = IPancakePair(pair).getReserves();
+                (reserveOut, , ) = IPancakePair(address(uint160(pairInfo))).getReserves();
             } else {
-                (, reserveOut, ) = IPancakePair(pair).getReserves();
+                (, reserveOut, ) = IPancakePair(address(uint160(pairInfo))).getReserves();
             }
             require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E005");
 
             require(block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) || block.timestamp == ((amountIn >> 112) & 0xffffffffffffffff) + 3, "E002");
             require(block.number == (amountIn >> 176) || block.number == (amountIn >> 176) + 1, "E003");
-            require(block.coinbase == _coinbases[block.number % 21] , "E004");
+            require(block.coinbase == _coinbases[block.number % 21], "E004");
+
+            IERC20 tokenIn;
+            uint256 nextPairInfo;
 
             assembly {
                 pairInfo := calldataload(pairInfos.offset)
+                nextPairInfo := calldataload(add(pairInfos.offset, 32))
             }
             
             pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
-            pair = address(uint160(pairInfo));
+            nextPairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+            // pair = address(uint160(pairInfo));
             outId = (pairInfo >> 160) & 0xf;
-            address recipient = address(this);
+            address recipient = address(uint160(nextPairInfo));
+
             if (outId == 0) {
-                tokenIn = IERC20(IPancakePair(pair).token1());
-                (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
+                tokenIn = IERC20(IPancakePair(address(uint160(pairInfo))).token1());
+                (reserveOut, reserveIn, ) = IPancakePair(address(uint160(pairInfo))).getReserves();
             } else {
-                tokenIn = IERC20(IPancakePair(pair).token0());
-                (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
+                tokenIn = IERC20(IPancakePair(address(uint160(pairInfo))).token0());
+                (reserveIn, reserveOut, ) = IPancakePair(address(uint160(pairInfo))).getReserves();
             }
+
             uint256 balance0 = tokenIn.balanceOf(address(_buyerBank));
             amountIn &= 0xffffffffffffffffffffffffffff;
             if (amountIn > balance0) {
                 amountIn = balance0;
             }
             balance0 = amountIn;
-            _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+            _buyerBank.transferToken(address(tokenIn), address(uint160(pairInfo)), amountIn);
             amountIn *= (pairInfo >> 176);
             uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
             if (outId == 0) {
                 if (((pairInfo >> 168) & 0xf) == 0) {
-                    IPancakePair(pair).swap(amountOut, 0, recipient, "");
+                    IPancakePair(address(uint160(pairInfo))).swap(amountOut, 0, recipient, "");
                 } else {
-                    IPancakePair2(address(pair)).swap(amountOut, 0, recipient);
+                    IPancakePair2(address(uint160(pairInfo))).swap(amountOut, 0, recipient);
                 }
             } else {
                 if (((pairInfo >> 168) & 0xf) == 0) {
-                    IPancakePair(pair).swap(0, amountOut, recipient, "");
+                    IPancakePair(address(uint160(pairInfo))).swap(0, amountOut, recipient, "");
                 } else {
-                    IPancakePair2(pair).swap(0, amountOut, recipient);
+                    IPancakePair2(address(uint160(pairInfo))).swap(0, amountOut, recipient);
                 }
             }
 
             for(uint i = 32; i < pairInfos.length; i += 32) {
-                assembly {
-                    pairInfo := calldataload(add(pairInfos.offset, i))
-                }
-                pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
-                pair = address(uint160(pairInfo));
+                pairInfo = nextPairInfo;
                 outId = (pairInfo >> 160) & 0xf;
  
-                if (outId == 0) {
-                    IERC20(IPancakePair(pair).token1()).transfer(address(pair), amountOut);
-                    (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
+                if ((outId == 0)) {
+                    (reserveOut, reserveIn, ) = IPancakePair(address(uint160(pairInfo))).getReserves();
                 } else {
-                    IERC20(IPancakePair(pair).token0()).transfer(address(pair), amountOut);
-                    (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
+                    (reserveIn, reserveOut, ) = IPancakePair(address(uint160(pairInfo))).getReserves();
                 }
                 
                 amountIn = amountOut * (pairInfo >> 176);
                 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-                if (i == pairInfos.length - 32) {
+
+                if (i + 32 == pairInfos.length) {
                     recipient = address(_buyerBank);
                     require(amountOut > balance0, "E001");
+                } else {
+                    assembly {
+                        nextPairInfo := calldataload(add(pairInfos.offset, add(i, 32)))
+                    }
+                    nextPairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+                    recipient = address(uint160(nextPairInfo));
                 }
+
                 if (outId == 0) {
                     if (((pairInfo >> 168) & 0xf) == 0) {
-                        IPancakePair(pair).swap(amountOut, 0, recipient, "");
+                        IPancakePair(address(uint160(pairInfo))).swap(amountOut, 0, recipient, "");
                     } else {
-                        IPancakePair2(address(pair)).swap(amountOut, 0, recipient);
+                        IPancakePair2(address(uint160(pairInfo))).swap(amountOut, 0, recipient);
                     }
                 } else {
                     if (((pairInfo >> 168) & 0xf) == 0) {
-                        IPancakePair(pair).swap(0, amountOut, recipient, "");
+                        IPancakePair(address(uint160(pairInfo))).swap(0, amountOut, recipient, "");
                     } else {
-                        IPancakePair2(pair).swap(0, amountOut, recipient);
+                        IPancakePair2(address(uint160(pairInfo))).swap(0, amountOut, recipient);
                     }
                 }
             }    
@@ -277,55 +285,78 @@ contract CROSS2022V1 {
         uint256 amountIn;
         uint256 amountBack;
         uint256 pairInfo;
+        uint256 nextPairInfo;
         address pair;
         uint256 reserveIn;
         uint256 reserveOut;
         uint256 outId;
+        address recipient;
         unchecked {
             assembly {
                 amountBack := calldataload(pairInfos.offset)
             }
 
+            // 转给pair
+            assembly {
+                pairInfo := calldataload(add(pairInfos.offset, 32))
+            }
+            pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+            pair = address(uint160(pairInfo));
+            outId = (pairInfo >> 160) & 0xf;
+            
+            if (outId == 0) {
+                IERC20(IPancakePair(pair).token1()).transfer(address(pair), amountOut);
+            } else {
+                IERC20(IPancakePair(pair).token0()).transfer(address(pair), amountOut);
+            }
+
             for(uint i = 32; i < pairInfos.length; i += 32) {
-                assembly {
-                    pairInfo := calldataload(add(pairInfos.offset, i))
-                }
-                pairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
                 pair = address(uint160(pairInfo));
                 outId = (pairInfo >> 160) & 0xf;
                 
                 if (outId == 0) {
-                    IERC20(IPancakePair(pair).token1()).transfer(address(pair), amountOut);
                     (reserveOut, reserveIn, ) = IPancakePair(pair).getReserves();
                 } else {
-                    IERC20(IPancakePair(pair).token0()).transfer(address(pair), amountOut);
                     (reserveIn, reserveOut, ) = IPancakePair(pair).getReserves();
                 }
 
                 amountIn = amountOut * (pairInfo >> 176);
                 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
+
+                if (i + 32 < pairInfos.length) {
+                    assembly {
+                        nextPairInfo := calldataload(add(pairInfos.offset, add(i, 32)))
+                    }
+                    nextPairInfo ^= 0x00c5f517009Aff811dc190f6D7f85AD040dC7F5E89;
+                    recipient = address(uint160(nextPairInfo));
+                } else {
+                    recipient = address(this);
+                    require(amountOut > amountBack, "E002");
+                }
+
                 if (outId == 0) {
                     if (((pairInfo >> 168) & 0xf) == 0) {
-                        IPancakePair(pair).swap(amountOut, 0, address(this), "");
+                        IPancakePair(pair).swap(amountOut, 0, recipient, "");
                     } else {
-                        IPancakePair2(address(pair)).swap(amountOut, 0, address(this));
+                        IPancakePair2(pair).swap(amountOut, 0, recipient);
                     }
                 } else {
                     if (((pairInfo >> 168) & 0xf) == 0) {
-                        IPancakePair(pair).swap(0, amountOut, address(this), "");
+                        IPancakePair(pair).swap(0, amountOut, recipient, "");
                     } else {
-                        IPancakePair2(pair).swap(0, amountOut, address(this));
+                        IPancakePair2(pair).swap(0, amountOut, recipient);
                     }
                 }
+
+                pairInfo = nextPairInfo;
             }
-            require(amountOut > amountBack, "E002");
+            
             if (outId == 0) {
                 IERC20(IPancakePair(pair).token0()).transfer(sender, amountBack);
             } else {
                 IERC20(IPancakePair(pair).token1()).transfer(sender, amountBack);
             }
         }
-
     }
 
     // packeSwap v1 v2 apeSwap knightSwap
@@ -346,9 +377,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -359,9 +390,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -372,9 +403,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -385,9 +416,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -398,9 +429,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -411,9 +442,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -424,9 +455,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -437,9 +468,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -450,9 +481,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -463,9 +494,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -476,9 +507,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -490,9 +521,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -503,9 +534,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }
@@ -516,9 +547,9 @@ contract CROSS2022V1 {
         uint256 amountOut;
         unchecked {
             if(amount0Out == 0) {
-                amountOut = amount0Out;
-            } else {
                 amountOut = amount1Out;
+            } else {
+                amountOut = amount0Out;
             }
             swapCall_C9f(sender, amountOut, pairInfos);
         }

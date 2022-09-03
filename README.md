@@ -11,11 +11,11 @@ seller bank: 0x357D5EdF29aDFa6937933BD99E4Ed12b676098dB
 
 test honey: 0x78A78E931421a16893e879D4660a074A3D926daA
 
-test token fee: 0x2cDd3361C4701c74Ca6Aa2cFA497d58BF2B28134
+test token fee: 0x231dB44485b11ee14CfDeC3b207dC5114a049D6a
 
 test buyer: 0xA7f4Bd3A2bFBf9Db4dE6E5A0dCE4720be4F2bDD2
 
-trader cross: 0xB8dC984333D3EF2eFbE973C1A2653b3ebbE0c751
+trader cross: 0x04F616A35667c447a2B5f093D632bBbCfD36eeE4
 
 ## 三角套利流程
 
@@ -260,3 +260,52 @@ INFO [08-26|09:30:01.789] [3]                                      pair=0x4088e1
 INFO [08-26|09:30:01.789] [+]                                      token0=0x55d398326f99059fF775485246999027B3197955 token1=0xC544D8aB2b5ED395B96E3Ec87462801ECa579aE1 outId=0
 INFO [08-26|09:30:01.789] [+]                                      reserve0=581912592452221665799965          reserve1=4977014300984279614466975
 WARN [08-26|09:30:01.790] this cross can not pass simulation       err="execution reverted: E001"
+
+
+
+INFO [08-31|11:51:23.424] out                                      amountIn=1315987016577997058   reward=1175336752851022157
+INFO [08-31|11:51:23.424] [0]                                      pair=0x66c888BF565e258e24ba296f852081ffD4849BA6 fee=9970
+INFO [08-31|11:51:23.424] [+]                                      token0=0x55d398326f99059fF775485246999027B3197955 token1=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56 outId=0
+INFO [08-31|11:51:23.424] [+]                                      reserve0=548742013535134533160              reserve1=551509862382792015907
+INFO [08-31|11:51:23.424] [1]                                      pair=0x16b9a82891338f9bA80E2D6970FddA79D1eb0daE fee=9975
+INFO [08-31|11:51:23.424] [+]                                      token0=0x55d398326f99059fF775485246999027B3197955 token1=0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c outId=1
+INFO [08-31|11:51:23.424] [+]                                      reserve0=82294740448238519751304914         reserve1=286852996072196313682995
+INFO [08-31|11:51:23.424] [2]                                      pair=0x33D8B50fb223Cf3803e3c72FA9f8Df92e0139Cee fee=9980
+INFO [08-31|11:51:23.424] [+]                                      token0=0x44ed71E77D487D78E3E68FA91a971bFD53B66cC7 token1=0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c outId=0
+INFO [08-31|11:51:23.424] [+]                                      reserve0=46367644073290738320000            reserve1=61520718209108524
+INFO [08-31|11:51:23.424] [3]                                      pair=0x318801526964eBccbCC47951bE813D546bA8AD58 fee=9980
+INFO [08-31|11:51:23.424] [+]                                      token0=0x44ed71E77D487D78E3E68FA91a971bFD53B66cC7 token1=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56 outId=1
+INFO [08-31|11:51:23.424] [+]                                      reserve0=4170000000000000000000             reserve1=5772024564814567488
+WARN [08-31|11:51:23.424] this cross can not pass simulation       err="execution reverted: Pancake: TRANSFER_FAILED"
+----------------------------------------------------
+INFO [08-31|11:51:20.422] out                                      amountIn=3136140776836207058   reward=2463874106814654204
+INFO [08-31|11:51:20.422] [0]                                      pair=0x69758726b04e527238B261ab00236AFE9F34929D fee=9975
+INFO [08-31|11:51:20.422] [+]                                      token0=0x7dEb9906BD1d77B410a56E5C23c36340Bd60C983 token1=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56 outId=0
+INFO [08-31|11:51:20.422] [+]                                      reserve0=110448612392215490924709           reserve1=15298761302914450430571
+INFO [08-31|11:51:20.422] [1]                                      pair=0xF93423685D8C48c37E0B8fBc2b5514De46e9d42B fee=9975
+INFO [08-31|11:51:20.422] [+]                                      token0=0x2170Ed0880ac9A755fd29B2688956BD959F933F8 token1=0x7dEb9906BD1d77B410a56E5C23c36340Bd60C983 outId=0
+INFO [08-31|11:51:20.422] [+]                                      reserve0=8733857772391228                   reserve1=31099356632034523680
+INFO [08-31|11:51:20.423] [2]                                      pair=0x531FEbfeb9a61D948c384ACFBe6dCc51057AEa7e fee=9975
+INFO [08-31|11:51:20.423] [+]                                      token0=0x2170Ed0880ac9A755fd29B2688956BD959F933F8 token1=0x55d398326f99059fF775485246999027B3197955 outId=1
+INFO [08-31|11:51:20.423] [+]                                      reserve0=270947395807408140274              reserve1=431417249542367962825262
+INFO [08-31|11:51:20.423] [3]                                      pair=0x6eAEC629B9CFa7acd507c50887C4851507Da67E6 fee=9970
+INFO [08-31|11:51:20.423] [+]                                      token0=0x55d398326f99059fF775485246999027B3197955 token1=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56 outId=1
+INFO [08-31|11:51:20.423] [+]                                      reserve0=164186879649433670680              reserve1=163877983438811503139
+WARN [08-31|11:51:20.423] this cross can not pass simulation       err="execution reverted: Pancake: INSUFFICIENT_INPUT_AMOUNT"
+
+--------------------------------------------------------
+
+INFO [08-31|14:17:39.497] out                                      amountIn=2714653884363665308   reward=2137555090332213731
+INFO [08-31|14:17:39.497] [0]                                      pair=0x69758726b04e527238B261ab00236AFE9F34929D fee=9975
+INFO [08-31|14:17:39.497] [+]                                      token0=0x7dEb9906BD1d77B410a56E5C23c36340Bd60C983 token1=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56 outId=0
+INFO [08-31|14:17:39.497] [+]                                      reserve0=110700251787601547561173     reserve1=15333617069420144687753
+INFO [08-31|14:17:39.497] [1]                                      pair=0xF93423685D8C48c37E0B8fBc2b5514De46e9d42B fee=9975
+INFO [08-31|14:17:39.497] [+]                                      token0=0x2170Ed0880ac9A755fd29B2688956BD959F933F8 token1=0x7dEb9906BD1d77B410a56E5C23c36340Bd60C983 outId=0
+INFO [08-31|14:17:39.497] [+]                                      reserve0=8733857772391228             reserve1=31099356632034523680
+INFO [08-31|14:17:39.497] [2]                                      pair=0x4FAa3322eEDD73425f9BAa34CBC479631A7ea9EF fee=9980
+INFO [08-31|14:17:39.497] [+]                                      token0=0x2170Ed0880ac9A755fd29B2688956BD959F933F8 token1=0xBf5140A22578168FD562DCcF235E5D43A02ce9B1 outId=1
+INFO [08-31|14:17:39.497] [+]                                      reserve0=34120055216830218            reserve1=8526952314630421153
+INFO [08-31|14:17:39.497] [3]                                      pair=0x72F1d53B2E4bDE565fE54AF13697857e71193dDf fee=9970
+INFO [08-31|14:17:39.497] [+]                                      token0=0xBf5140A22578168FD562DCcF235E5D43A02ce9B1 token1=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56 outId=1
+INFO [08-31|14:17:39.497] [+]                                      reserve0=84647261202946783857682      reserve1=539099154151998569172418
+WARN [08-31|14:17:39.498] this cross can not pass simulation       err="execution reverted: Pancake: INSUFFICIENT_INPUT_AMOUNT"
