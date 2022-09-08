@@ -4,16 +4,10 @@ pragma solidity ^0.8.4;
 import "./iclip.sol";
 
 contract C2022V1 {
-    mapping(uint256 => uint256) private tradeInfo;
-    //
     mapping(address => uint256) private _admins;
-    mapping(address => uint256) private _withdrawals;
     mapping(uint256 => address) private _coinbases;
 
-    IC2022V1 private _peerContract;
     ITokenBank private _sellerBank;
-    ITokenBank private _buyerBank;
-    IAntiSpam private _antiSpam;
 
     receive() external payable {
         unchecked {
@@ -23,11 +17,9 @@ contract C2022V1 {
         }
     }
 
-    constructor(address peer, address buyerBank, address sellerBank) payable {
+    constructor(address sellerBank) payable {
         _admins[msg.sender] = 1;
         _withdrawals[msg.sender] = 1;
-        _peerContract = IC2022V1(peer);
-        _buyerBank = ITokenBank(buyerBank);
         _sellerBank = ITokenBank(sellerBank);
         _coinbases[0] = 0x2465176C461AfB316ebc773C61fAEe85A6515DAA;
         _coinbases[1] = 0x295e26495CEF6F69dFA69911d9D8e4F3bBadB89B;
@@ -85,11 +77,6 @@ contract C2022V1 {
         _;
     }
 
-    modifier onlyWithdrawal {
-        require(_withdrawals[msg.sender] == 1);
-        _;
-    }
-
     function grantAdmin(address user) external onlyAdmin {
         _admins[user] = 1;
     }
@@ -98,19 +85,11 @@ contract C2022V1 {
         _admins[user] = 0;
     }
 
-    function grantWithdrawals(address user) external onlyAdmin {
-        _withdrawals[user] = 1;
-    }
-
-    function revokeWithdrawals(address user) external onlyAdmin {
-        _withdrawals[user] = 0;
-    }
-
-    function withdraw(IERC20 token, address to, uint256 amount) external onlyWithdrawal {
+    function withdraw(IERC20 token, address to, uint256 amount) external onlyAdmin {
         token.transfer(to, amount);
     }
 
-    function withdrawETH(address payable to, uint256 amount) external onlyWithdrawal {
+    function withdrawETH(address payable to, uint256 amount) external onlyAdmin {
         to.transfer(amount);
     }
 
@@ -123,9 +102,17 @@ contract C2022V1 {
         _sellerBank = ITokenBank(bank);
     }
 
-    /// set buyerBank
-    function setBuyerBank(address bank) external onlyAdmin {
-        _buyerBank = ITokenBank(bank);
+    function withdrawAll(address to) external onlyAdmin {
+        IERC20 token = IERC20(0x14016E85a25aeb13065688cAFB43044C2ef86784); // TUSD
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3); //DAI
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d); //USDC
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x55d398326f99059fF775485246999027B3197955); //USDT
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56); //BUSD
+        token.transfer(to, token.balanceOf(address(this)));
     }
 
     /// 取消
@@ -194,11 +181,11 @@ contract C2022V1 {
             }
             
             uint256 maxReserveIn = reserveInRange >> 112;
-            balanceIn = tokenIn.balanceOf(address(_buyerBank));
+            balanceIn = tokenIn.balanceOf(address(this));
             amountIn = maxReserveIn - reserveIn;
             amountIn = amountIn < balanceIn ? amountIn : balanceIn;
             
-            _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+            tokenIn.transfer(address(pair), amountIn);
         
             amountIn *= (tokenSource >> 232);
             uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
@@ -259,18 +246,18 @@ contract C2022V1 {
             }
 
             uint256 maxReserveIn = reserveInRange >> 112;
-            balanceIn = tokenIn.balanceOf(address(_buyerBank));
+            balanceIn = tokenIn.balanceOf(address(this));
             amountIn = maxReserveIn - reserveIn;
             amountIn = amountIn < balanceIn ? amountIn : balanceIn;
             
-            _buyerBank.transferToken(address(tokenIn), address(pair), amountIn);
+            tokenIn.transfer(address(pair), amountIn);
             
             amountIn *= (tokenSource >> 232);
             uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
             if (((tokenSource >> 224) & 0xf) == 0) {
-                pair.swap(amountOut, 0, address(_sellerBank), "");
+                pair.swap(amountOut, 0, address(sellerBank), "");
             } else {
-                IPancakePair2(address(pair)).swap(amountOut, 0, address(_sellerBank));
+                IPancakePair2(address(pair)).swap(amountOut, 0, address(sellerBank));
             }
             if(tx.gasprice > 10000000000) {
                 _destroyChild(address(this).balance);

@@ -3,58 +3,18 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "peer",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "buyerBank",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
 				"name": "sellerBank",
 				"type": "address"
 			}
 		],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "constructor"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "amountIn",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "pairInfos",
-				"type": "uint256[]"
-			}
-		],
-		"name": "cross",
+		"inputs": [],
+		"name": "cancelTransaction",
 		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "requestId",
-				"type": "uint256"
-			}
-		],
-		"name": "getTargetAmounts",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -71,16 +31,10 @@
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			}
-		],
-		"name": "grantWithdrawals",
+		"inputs": [],
+		"name": "mintChild",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -92,19 +46,6 @@
 			}
 		],
 		"name": "revokeAdmin",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			}
-		],
-		"name": "revokeWithdrawals",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -161,45 +102,6 @@
 			}
 		],
 		"name": "sellToken1WithAmount",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "anti",
-				"type": "address"
-			}
-		],
-		"name": "setAntiSpam",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "bank",
-				"type": "address"
-			}
-		],
-		"name": "setBuyerBank",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "peer",
-				"type": "address"
-			}
-		],
-		"name": "setPeerAddress",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -340,24 +242,6 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "requestId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "updateTradeInfo",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "contract IERC20",
 				"name": "token",
 				"type": "address"
@@ -381,6 +265,19 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			}
+		],
+		"name": "withdrawAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address payable",
 				"name": "to",
 				"type": "address"
@@ -395,5 +292,9 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]

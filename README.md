@@ -1,21 +1,16 @@
 # clip
-antiSpam Address: 0x085C0d0dF430C4e1cCaeDDFdfA7D2143ec2c9ADB
 
-trader Contract Address 1: 0xAA75Eada2F91811527F2D77eB63Ae8a32349681C (buy, cross)
+trader Contract Address: 0xdA506A5A283cCee4c46709F86299df6df4952dfe (buy and sell)
 
-trader Contract Address 2: 0x2c0fc53C64FE109FD546A8Af1C47394F5436e93b (sell, cross)
+trader cross: 0x04F616A35667c447a2B5f093D632bBbCfD36eeE4
 
-buyer bank: 0x8f5c50d478eCcd4DF9F83bE7293d8e4D37dD46d5
-
-seller bank: 0x357D5EdF29aDFa6937933BD99E4Ed12b676098dB
+seller bank: 0xd84bb4523573Eec28F0DF1c5Ecf7ed4d650Af31c
 
 test honey: 0x78A78E931421a16893e879D4660a074A3D926daA
 
 test token fee: 0x231dB44485b11ee14CfDeC3b207dC5114a049D6a
 
 test buyer: 0xA7f4Bd3A2bFBf9Db4dE6E5A0dCE4720be4F2bDD2
-
-trader cross: 0x04F616A35667c447a2B5f093D632bBbCfD36eeE4
 
 ## 三角套利流程
 
