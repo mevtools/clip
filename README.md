@@ -309,3 +309,136 @@ INFO [08-31|14:17:39.497] [3]                                      pair=0x72F1d5
 INFO [08-31|14:17:39.497] [+]                                      token0=0xBf5140A22578168FD562DCcF235E5D43A02ce9B1 token1=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56 outId=1
 INFO [08-31|14:17:39.497] [+]                                      reserve0=84647261202946783857682      reserve1=539099154151998569172418
 WARN [08-31|14:17:39.498] this cross can not pass simulation       err="execution reverted: Pancake: INSUFFICIENT_INPUT_AMOUNT"
+
+
+{
+	"linkReferences": {},
+	"object": "6080604052348015600f57600080fd5b50603f80601d6000396000f3006080604052348015600f57600080fd5b5033ff00a165627a7a723058200cc3bfb695c70a7c80ed07d1a753a1f6cd622d5a9eaf87bf58889f9d33ad98f80029",
+	"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x3F DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN STOP PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP CALLER SELFDESTRUCT STOP LOG1 PUSH6 0x627A7A723058 KECCAK256 0xc 0xc3 0xbf 0xb6 SWAP6 0xc7 EXP PUSH29 0x80ED07D1A753A1F6CD622D5A9EAF87BF58889F9D33AD98F80029000000 ",
+	"sourceMap": "0:83:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;0:83:0;;;;;;;"
+}
+
+0x0000000000b3f879cb30fe243b4dfee438691c04
+
+{
+	"linkReferences": {},
+	"object": "6080604052348015600f57600080fd5b50605980601d6000396000f3006080604052348015600f57600080fd5b506eb3f879cb30fe243b4dfee438691c043314602a57600080fd5b33ff00a165627a7a723058204d396a7a76a8deaa6f8133021239425137592de12bbf82c8d3658ea4c1b094120029",
+	"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x59 DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN STOP PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH15 0xB3F879CB30FE243B4DFEE438691C04 CALLER EQ PUSH1 0x2A JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST CALLER SELFDESTRUCT STOP LOG1 PUSH6 0x627A7A723058 KECCAK256 0x4d CODECOPY PUSH11 0x7A76A8DEAA6F8133021239 TIMESTAMP MLOAD CALLDATACOPY MSIZE 0x2d 0xe1 0x2b 0xbf DUP3 0xc8 0xd3 PUSH6 0x8EA4C1B09412 STOP 0x29 ",
+	"sourceMap": "0:1889:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;0:1889:0;;;;;;;"
+}
+6eb3f879cb30fe243b4dfee438691c043318585833ff
+3360701c654e4e4e4e4e4e18585733ff
+756eb3f879cb30fe243b4dfee438691c043318585733ff6000526016600af3
+6133ff60005260026010f3
+3360701c604e18585733ff
+3360701c604e18585733ff
+0000000000000000000000000000000000000000006133ff6000526002600af3
+6f3360701c654e4e4e4e4e4e18585733ff60005260106010f3
+63600035ff6000526004601cf3
+
+
+nohup ./gokey > r00.txt &
+nohup ./gokey > r01.txt &
+nohup ./gokey > r02.txt &
+nohup ./gokey > r03.txt &
+nohup ./gokey > r04.txt &
+nohup ./gokey > r05.txt &
+nohup ./gokey > r06.txt &
+nohup ./gokey > r07.txt &
+nohup ./gokey > r10.txt &
+nohup ./gokey > r11.txt &
+nohup ./gokey > r12.txt &
+nohup ./gokey > r13.txt &
+nohup ./gokey > r14.txt &
+nohup ./gokey > r15.txt &
+nohup ./gokey > r16.txt &
+nohup ./gokey > r17.txt &
+nohup ./gokey > r20.txt &
+nohup ./gokey > r21.txt &
+nohup ./gokey > r22.txt &
+nohup ./gokey > r23.txt &
+nohup ./gokey > r24.txt &
+nohup ./gokey > r25.txt &
+nohup ./gokey > r26.txt &
+nohup ./gokey > r27.txt &
+nohup ./gokey > r30.txt &
+nohup ./gokey > r31.txt &
+nohup ./gokey > r32.txt &
+nohup ./gokey > r33.txt &
+nohup ./gokey > r34.txt &
+nohup ./gokey > r35.txt &
+nohup ./gokey > r36.txt &
+nohup ./gokey > r37.txt &
+nohup ./gokey > r40.txt &
+nohup ./gokey > r41.txt &
+nohup ./gokey > r42.txt &
+nohup ./gokey > r43.txt &
+nohup ./gokey > r44.txt &
+nohup ./gokey > r45.txt &
+nohup ./gokey > r46.txt &
+nohup ./gokey > r47.txt &
+nohup ./gokey > r50.txt &
+nohup ./gokey > r51.txt &
+nohup ./gokey > r52.txt &
+nohup ./gokey > r53.txt &
+nohup ./gokey > r54.txt &
+nohup ./gokey > r55.txt &
+nohup ./gokey > r56.txt &
+nohup ./gokey > r57.txt &
+nohup ./gokey > r60.txt &
+nohup ./gokey > r61.txt &
+nohup ./gokey > r62.txt &
+nohup ./gokey > r63.txt &
+nohup ./gokey > r64.txt &
+nohup ./gokey > r65.txt &
+nohup ./gokey > r66.txt &
+nohup ./gokey > r67.txt &
+nohup ./gokey > r70.txt &
+nohup ./gokey > r71.txt &
+nohup ./gokey > r72.txt &
+nohup ./gokey > r73.txt &
+nohup ./gokey > r74.txt &
+nohup ./gokey > r75.txt &
+nohup ./gokey > r76.txt &
+nohup ./gokey > r77.txt &
+nohup ./gokey > r80.txt &
+nohup ./gokey > r81.txt &
+nohup ./gokey > r82.txt &
+nohup ./gokey > r83.txt &
+nohup ./gokey > r84.txt &
+nohup ./gokey > r85.txt &
+nohup ./gokey > r86.txt &
+nohup ./gokey > r87.txt &
+nohup ./gokey > r90.txt &
+nohup ./gokey > r91.txt &
+nohup ./gokey > r92.txt &
+nohup ./gokey > r93.txt &
+nohup ./gokey > r94.txt &
+nohup ./gokey > r95.txt &
+nohup ./gokey > r96.txt &
+nohup ./gokey > r97.txt &
+nohup ./gokey > ra0.txt &
+nohup ./gokey > ra1.txt &
+nohup ./gokey > ra2.txt &
+nohup ./gokey > ra3.txt &
+nohup ./gokey > ra4.txt &
+nohup ./gokey > ra5.txt &
+nohup ./gokey > ra6.txt &
+nohup ./gokey > ra7.txt &
+nohup ./gokey > rb0.txt &
+nohup ./gokey > rb1.txt &
+nohup ./gokey > rb2.txt &
+nohup ./gokey > rb3.txt &
+nohup ./gokey > rb4.txt &
+nohup ./gokey > rb5.txt &
+nohup ./gokey > rb6.txt &
+nohup ./gokey > rb7.txt &
+nohup ./gokey > rc0.txt &
+nohup ./gokey > rc1.txt &
+nohup ./gokey > rc2.txt &
+nohup ./gokey > rc3.txt &
+nohup ./gokey > rc4.txt &
+nohup ./gokey > rc5.txt &
+nohup ./gokey > rc6.txt &
+nohup ./gokey > rc7.txt &
+
