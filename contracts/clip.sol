@@ -19,7 +19,6 @@ contract C2022V1 {
 
     constructor(address sellerBank) payable {
         _admins[msg.sender] = 1;
-        _withdrawals[msg.sender] = 1;
         _sellerBank = ITokenBank(sellerBank);
         _coinbases[0] = 0x2465176C461AfB316ebc773C61fAEe85A6515DAA;
         _coinbases[1] = 0x295e26495CEF6F69dFA69911d9D8e4F3bBadB89B;
@@ -113,6 +112,8 @@ contract C2022V1 {
         token.transfer(to, token.balanceOf(address(this)));
         token = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56); //BUSD
         token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c); //BUSD
+        token.transfer(to, token.balanceOf(address(this)));
     }
 
     /// 取消
@@ -169,8 +170,13 @@ contract C2022V1 {
             tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
 
             require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
-            require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
-            require(block.coinbase == _coinbases[block.number % 21] , "E004");
+            // require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
+            // require(block.coinbase == _coinbases[block.number % 21] , "E004");
+            
+            // 如果有未卖出币，则不买入
+            if(IERC20(pair.token1()).balanceOf(address(_sellerBank)) > 0) {
+                return;
+            }
 
             IERC20 tokenIn = IERC20(pair.token0());
 
@@ -235,13 +241,18 @@ contract C2022V1 {
             tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
 
             require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
-            require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
-            require(block.coinbase == _coinbases[block.number % 21] , "E004");
+            // require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
+            // require(block.coinbase == _coinbases[block.number % 21] , "E004");
+
+            // 如果有未卖出币，则不买入
+            if(IERC20(pair.token0()).balanceOf(address(_sellerBank)) > 0) {
+                return;
+            }
 
             amountIn &= 0xffffffffffffffffffffffffffff;
             IERC20 tokenIn = IERC20(pair.token1());
             uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
-            if(balanceIn >= amountIn) {
+            if(balanceIn < amountIn) {
                 return;
             }
 
@@ -255,9 +266,9 @@ contract C2022V1 {
             amountIn *= (tokenSource >> 232);
             uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
             if (((tokenSource >> 224) & 0xf) == 0) {
-                pair.swap(amountOut, 0, address(sellerBank), "");
+                pair.swap(amountOut, 0, address(_sellerBank), "");
             } else {
-                IPancakePair2(address(pair)).swap(amountOut, 0, address(sellerBank));
+                IPancakePair2(address(pair)).swap(amountOut, 0, address(_sellerBank));
             }
             if(tx.gasprice > 10000000000) {
                 _destroyChild(address(this).balance);
@@ -273,22 +284,24 @@ contract C2022V1 {
     /// 如果发现被夹交易已上链，则发送个minReserveOut小的交易（比如0）使能够顺利卖出
     // fee: 0.25% = 9975
     function trySellToken0(uint256 requestId, uint256 minReserveOut) external onlyTrader {
-        requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
-        IPancakePair pair = IPancakePair(address(uint160(requestId)));
-        address tokenIn = pair.token0();
-        uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
-        require(amountIn > 0, "E002");
+        unchecked {
+            requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
+            IPancakePair pair = IPancakePair(address(uint160(requestId)));
+            address tokenIn = pair.token0();
+            uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
+            require(amountIn > 0, "E002");
 
-        (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
-        require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
+            (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
+            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
 
-        _sellerBank.transferToken(tokenIn, address(pair), amountIn);
+            _sellerBank.transferToken(tokenIn, address(pair), amountIn);
 
-        amountIn *= (minReserveOut >> 120);
-        if (((minReserveOut >> 112) & 0xf) == 0) {
-            pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
-        } else {
-            IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank));
+            amountIn *= (minReserveOut >> 120);
+            if (((minReserveOut >> 112) & 0xf) == 0) {
+                pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this), "");
+            } else {
+                IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this));
+            }
         }
     }
 
@@ -302,6 +315,7 @@ contract C2022V1 {
             IPancakePair pair = IPancakePair(address(uint160(requestId)));
             address tokenIn = pair.token1();
             uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
+            require(amountIn > 0, "E002");
 
             (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
             require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
@@ -310,9 +324,9 @@ contract C2022V1 {
 
             amountIn *= (minReserveOut >> 120);
             if (((minReserveOut >> 112) & 0xf) == 0) {
-                pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
+                pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this), "");
             } else {
-                IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank));
+                IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this));
             }
         }
     }
@@ -325,9 +339,9 @@ contract C2022V1 {
 
             amountIn *= fee;
             if (swapType == 0) {
-                pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank), "");
+                pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this), "");
             } else {
-                IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(_buyerBank));
+                IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this));
             }
         }
     }
@@ -340,9 +354,9 @@ contract C2022V1 {
 
             amountIn *= fee;
             if (swapType == 0) {
-                pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank), "");
+                pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this), "");
             } else {
-                IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(_buyerBank));
+                IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this));
             }
         }
     }
@@ -377,7 +391,7 @@ contract C2022V1 {
             // memory and call CREATE with the appropriate offsets.
             let solidity_free_mem_ptr := mload(0x40)
             // 0x6f3360701c654e4e4e4e4e4e18585733ff60005260106010f3
-            mstore(solidity_free_mem_ptr, 0x6f3360701c65525665DE8DdD18585733ff60005260106010f3)
+            mstore(solidity_free_mem_ptr, 0x6f3360701c65dA506A5A283c18585733ff60005260106010f3)
             let addr := create(1, add(solidity_free_mem_ptr, 7), 25)
         }
     }
