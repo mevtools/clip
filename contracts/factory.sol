@@ -80,6 +80,5 @@ contract FactoryAssembly {
             //     revert(0, 0)
             // }
         }
-
     }
 }

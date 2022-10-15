@@ -1,6 +1,6 @@
 # clip
 
-trader Contract Address: 0x46ff2893899E26badEfAaC034cC839C4A9B3dD47 (buy and sell)
+trader Contract Address: 0x000000000002573962CFce0145E137E1e827d376 (buy and sell)
 
 trader cross: 0x04F616A35667c447a2B5f093D632bBbCfD36eeE4
 

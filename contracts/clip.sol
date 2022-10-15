@@ -17,30 +17,10 @@ contract C2022V1 {
         }
     }
 
-    constructor(address sellerBank) payable {
+    function initialize(address sellerBank) external {
+        require(msg.sender == 0x3991993314484365851296601167350203279711);
         _admins[msg.sender] = 1;
         _sellerBank = ITokenBank(sellerBank);
-        _coinbases[0] = 0x2465176C461AfB316ebc773C61fAEe85A6515DAA;
-        _coinbases[1] = 0x295e26495CEF6F69dFA69911d9D8e4F3bBadB89B;
-        _coinbases[2] = 0x2b3A6c089311b478Bf629C29D790A7A6db3fc1b9;
-        _coinbases[3] = 0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9;
-        _coinbases[4] = 0x3f349bBaFEc1551819B8be1EfEA2fC46cA749aA1;
-        _coinbases[5] = 0x61Dd481A114A2E761c554B641742C973867899D3; // change --
-        _coinbases[6] = 0x685B1ded8013785d6623CC18D214320b6Bb64759;
-        _coinbases[7] = 0x70F657164e5b75689b64B7fd1fA275F334f28e18;
-        _coinbases[8] = 0x72b61c6014342d914470eC7aC2975bE345796c2b;
-        _coinbases[9] = 0x7AE2F5B9e386cd1B50A4550696D957cB4900f03a;
-        _coinbases[10] = 0x8b6C8fd93d6F4CeA42Bbb345DBc6F0DFdb5bEc73;
-        _coinbases[11] = 0x9F8cCdaFCc39F3c7D6EBf637c9151673CBc36b88;
-        _coinbases[12] = 0xa6f79B60359f141df90A0C745125B131cAAfFD12;
-        _coinbases[13] = 0xAAcF6a8119F7e11623b5A43DA638e91F669A130f;
-        _coinbases[14] = 0xac0E15a038eedfc68ba3C35c73feD5bE4A07afB5;
-        _coinbases[15] = 0xBe807Dddb074639cD9fA61b47676c064fc50D62C; // change  ^
-        _coinbases[16] = 0xe2d3A739EFFCd3A99387d015E260eEFAc72EBea1;
-        _coinbases[17] = 0xE9AE3261a475a27Bb1028f140bc2a7c843318afD;
-        _coinbases[18] = 0xea0A6E3c511bbD10f4519EcE37Dc24887e11b55d;
-        _coinbases[19] = 0xee226379dB83CfFC681495730c11fDDE79BA4c0C;
-        _coinbases[20] = 0xEF0274E31810C9Df02F98FAFDe0f841F4E66a1Cd;
     }
 
     modifier onlyAdmin {
@@ -289,10 +269,13 @@ contract C2022V1 {
             IPancakePair pair = IPancakePair(address(uint160(requestId)));
             address tokenIn = pair.token0();
             uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
-            require(amountIn > 0, "E002");
+            
+            if (amountIn == 0) {
+                return;
+            }
 
             (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
-            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
+            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003S");
 
             _sellerBank.transferToken(tokenIn, address(pair), amountIn);
 
@@ -315,10 +298,13 @@ contract C2022V1 {
             IPancakePair pair = IPancakePair(address(uint160(requestId)));
             address tokenIn = pair.token1();
             uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
-            require(amountIn > 0, "E002");
+
+            if (amountIn == 0) {
+                return;
+            }
 
             (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
-            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003");
+            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003S");
 
             _sellerBank.transferToken(tokenIn, address(pair), amountIn);
 
@@ -391,8 +377,8 @@ contract C2022V1 {
             // memory and call CREATE with the appropriate offsets.
             let solidity_free_mem_ptr := mload(0x40)
             // 0x6f3360701c654e4e4e4e4e4e18585733ff60005260106010f3
-            mstore(solidity_free_mem_ptr, 0x6f3360701c65dA506A5A283c18585733ff60005260106010f3)
-            let addr := create(1, add(solidity_free_mem_ptr, 7), 25)
+            mstore(solidity_free_mem_ptr, 0x6a33606c1c602518585733ff600052600b6015f3)
+            let addr := create(1, add(solidity_free_mem_ptr, 12), 20)
         }
     }
 
@@ -421,5 +407,9 @@ contract C2022V1 {
                 )
             }   
         }
+    }
+
+    function destroyMain(address payable target) external onlyAdmin {
+        selfdestruct(target);
     }
 }
