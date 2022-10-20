@@ -2,7 +2,7 @@
 
 trader Contract Address: 0x000000000002573962CFce0145E137E1e827d376 (buy and sell)
 
-trader cross: 0x04F616A35667c447a2B5f093D632bBbCfD36eeE4
+trader cross: 0x83fA4E9f7914336b810ACC082BD007ec73a91d6D
 
 seller bank: 0xd84bb4523573Eec28F0DF1c5Ecf7ed4d650Af31c
 
