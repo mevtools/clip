@@ -23,6 +23,10 @@ contract C2022V1 {
         _sellerBank = ITokenBank(sellerBank);
     }
 
+    function receiveValue() external payable onlyTrader {
+        return;
+    }
+
     modifier onlyAdmin {
         require(_admins[msg.sender] == 1);
         _;
@@ -129,7 +133,7 @@ contract C2022V1 {
     /// amountIn = [timeStamp]112[amountIn]0
     /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
     /// requestId = 256[randNumber]160[pairAddress]0
-    function tryBuyToken1WithCheck(uint256 requestId, uint256 reserveInRange, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    function tryBuyToken1WithCheck(uint256 requestId, uint256 reserveInRange, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader returns (uint256) {
         // decrypt
         unchecked {
             requestId ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -142,7 +146,7 @@ contract C2022V1 {
                 _destroyChild(address(this).balance);
             }
             if(reserveIn > minReserveIn) {
-                return;
+                return 0;
             }
 
             victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -155,7 +159,7 @@ contract C2022V1 {
             
             // 如果有未卖出币，则不买入
             if(IERC20(pair.token1()).balanceOf(address(_sellerBank)) > 0) {
-                return;
+                return 0;
             }
 
             IERC20 tokenIn = IERC20(pair.token0());
@@ -163,7 +167,7 @@ contract C2022V1 {
             amountIn &= 0xffffffffffffffffffffffffffff;
             uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
             if(balanceIn < amountIn) {
-                return;
+                return 0;
             }
             
             uint256 maxReserveIn = reserveInRange >> 112;
@@ -185,6 +189,7 @@ contract C2022V1 {
                 _destroyChild(address(this).balance);
             }
         }
+        return 1;
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
@@ -200,7 +205,7 @@ contract C2022V1 {
     /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
     /// requestId = 256[randNumber]160[pairAddress]0
     /// TODO: 卖出失败后就不再买入
-    function tryBuyToken0WithCheck(uint256 requestId, uint256 reserveInRange, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader {
+    function tryBuyToken0WithCheck(uint256 requestId, uint256 reserveInRange, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader returns (uint256) {
         // decrypt
         unchecked {
             requestId ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -213,7 +218,7 @@ contract C2022V1 {
                 _destroyChild(address(this).balance);
             }
             if(reserveIn > minReserveIn) {
-                return;
+                return 0;
             }
             
             victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
@@ -226,14 +231,14 @@ contract C2022V1 {
 
             // 如果有未卖出币，则不买入
             if(IERC20(pair.token0()).balanceOf(address(_sellerBank)) > 0) {
-                return;
+                return 0;
             }
 
             amountIn &= 0xffffffffffffffffffffffffffff;
             IERC20 tokenIn = IERC20(pair.token1());
             uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
             if(balanceIn < amountIn) {
-                return;
+                return 0;
             }
 
             uint256 maxReserveIn = reserveInRange >> 112;
@@ -255,6 +260,7 @@ contract C2022V1 {
                 _destroyChild(address(this).balance);
             }
         }
+        return 1;
     }
 
     /// 试着卖出Token
@@ -263,7 +269,7 @@ contract C2022V1 {
     /// 不断发送交易，直到该交易成功
     /// 如果发现被夹交易已上链，则发送个minReserveOut小的交易（比如0）使能够顺利卖出
     // fee: 0.25% = 9975
-    function trySellToken0(uint256 requestId, uint256 minReserveOut) external onlyTrader {
+    function trySellToken0(uint256 requestId, uint256 minReserveOut) external onlyTrader returns (uint256) {
         unchecked {
             requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
             IPancakePair pair = IPancakePair(address(uint160(requestId)));
@@ -271,7 +277,7 @@ contract C2022V1 {
             uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
             
             if (amountIn == 0) {
-                return;
+                return 0;
             }
 
             (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
@@ -286,13 +292,14 @@ contract C2022V1 {
                 IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this));
             }
         }
+        return 1;
     }
 
     /// 试着卖出Token
     /// minReserveOut为卖出时最小可接受的reserve值
     /// minReserveOut 可设置为256[fee]120[type]112[maxReserveIn+amoutIn*0.9]0
     // fee: 0.25% = 9975
-    function trySellToken1(uint256 requestId, uint256 minReserveOut) external onlyTrader {
+    function trySellToken1(uint256 requestId, uint256 minReserveOut) external onlyTrader returns (uint256) {
         unchecked {
             requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
             IPancakePair pair = IPancakePair(address(uint160(requestId)));
@@ -300,7 +307,7 @@ contract C2022V1 {
             uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
 
             if (amountIn == 0) {
-                return;
+                return 0;
             }
 
             (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
@@ -315,10 +322,11 @@ contract C2022V1 {
                 IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this));
             }
         }
+        return 1;
     }
     
     // fee: 0.25% = 9975
-    function sellToken0WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader {
+    function sellToken0WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader returns (uint256) {
         unchecked {
             (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
             _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
@@ -330,10 +338,11 @@ contract C2022V1 {
                 IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this));
             }
         }
+        return 1;
     }
     
     // fee: 0.25% = 9975
-    function sellToken1WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader {
+    function sellToken1WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader returns (uint256) {
         unchecked {
             (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
             _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
@@ -345,6 +354,7 @@ contract C2022V1 {
                 IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this));
             }
         }
+        return 1;
     }
 
     // Creates a child contract that can only be destroyed by this contract.
