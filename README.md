@@ -16,6 +16,11 @@ factory: 0x00000000002882B2B808CeEA1D33C90a275eaA8e
 
 Salt: 0x9e2c7bd948053fb4c94baf814ab68a84ade175c2b567d0436265e8d75d4bf3db
 
+# API
+https://api.infstones.com/bsc/mainnet/994a9feb02fa4fba969063012db2f51d
+
+wss://api.infstones.com/ws/bsc/mainnet/994a9feb02fa4fba969063012db2f51d
+
 # 假帐户
 
 0xcdCb34374661da619629BE3D8A7b942f022356a3
