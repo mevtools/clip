@@ -2,6 +2,8 @@
 
 trader Contract Address: 0x000000000002573962CFce0145E137E1e827d376 (buy and sell)
 
+token bank: 0xd84bb4523573eec28f0df1c5ecf7ed4d650af31c
+
 trader cross: 0x83fA4E9f7914336b810ACC082BD007ec73a91d6D
 
 token bank: 0x0A83f62407d74228E0E106f009638750Fb555DE0
