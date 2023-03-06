@@ -45,13 +45,30 @@ wss://api.infstones.com/ws/bsc/mainnet/994a9feb02fa4fba969063012db2f51d
 
 0xab1c3FF36724B3F6c8ec13411290DDD3D5bDd58A
 
+# MEV minner
+
+0x72b61c6014342d914470ec7ac2975be345796c2b (Validator: BNB48 Club) 
+
+0xb218c5d6af1f979ac42bc68d98a5a0d796c6ab01 (Validator: Alan Turing)
+
+0xa6f79b60359f141df90a0c745125b131caaffd12 (Validator: Avengers)
+
+0x0bac492386862ad3df4b666bc096b0505bb694da (Validator: Claude Shannon)
+
+0xd1d6bf74282782b0b3eb1413c901d6ecf02e8e28
+
+0x9bb832254baf4e8b4cc26bd2b52b31389b56e98b (Validator: Stake2me)
+
+-----------------
+0x9F8cCdaFCc39F3c7D6EBf637c9151673CBc36b88 (Validator: Ankr )
+
 # Router
 
 0x10ED43C718714eb63d5aA57B78B54704E256024E
 
 # CHECKER
 
-checker1: 0x1b4Ad10484Ba4e35c1718cBb19b71D3DB2D327ef
+checker1: 0x083A9357e5042C7aD690b935af98e035fE807deB
 checker2: 0x626468742c4978fE1d4Bf92f19feeE950CcD3f6D
 checker3: 0x1eb8168CE39b7221BDc0B0a3977FfA5385900e87
 
