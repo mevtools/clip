@@ -58,7 +58,7 @@ contract C2023V1 {
     /// amountIn: 买入量
     /// timeStamp: 最新的timeStamp + 3
     /// _coinebase: 最新区块的coinbase
-    function tryBuyToken1WithCheck(address pairAddr, uint256 amountIn, uint256 timeStamp, address _coinbase) external onlyTrader {
+    function tryBuyToken1WithCheck_O9f(address pairAddr, uint256 amountIn, uint256 timeStamp, address _coinbase) external onlyTrader {
         require(block.timestamp == timeStamp || block.timestamp == timeStamp + 3 ||  block.timestamp == timeStamp + 6, "E001B");
         require(block.coinbase != _coinbase, "E002B");
         unchecked {
@@ -78,7 +78,7 @@ contract C2023V1 {
     }
 
     /// amountIn: 买入量
-    function tryBuyToken0WithCheck(address pairAddr, uint256 amountIn, uint256 timeStamp, address _coinbase) external onlyTrader {
+    function tryBuyToken0WithCheck_JhS(address pairAddr, uint256 amountIn, uint256 timeStamp, address _coinbase) external onlyTrader {
         require(block.timestamp == timeStamp || block.timestamp == timeStamp + 3 ||  block.timestamp == timeStamp + 6, "E001B");
         require(block.coinbase != _coinbase, "E002B");
         unchecked {
@@ -98,7 +98,7 @@ contract C2023V1 {
     }
 
     // pair
-    function trySellToken0(address pairAddr) external onlyTrader {
+    function trySellToken0_K8n(address pairAddr) external onlyTrader {
         unchecked {
             IPancakePair pair = IPancakePair(pairAddr);
             address tokenIn = pair.token0();
@@ -116,7 +116,7 @@ contract C2023V1 {
     }
 
     // pair
-    function trySellToken1(address pairAddr) external onlyTrader {
+    function trySellToken1_12m(address pairAddr) external onlyTrader {
         unchecked {
             IPancakePair pair = IPancakePair(pairAddr);
             address tokenIn = pair.token1();
