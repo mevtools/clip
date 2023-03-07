@@ -60,6 +60,8 @@ wss://api.infstones.com/ws/bsc/mainnet/994a9feb02fa4fba969063012db2f51d
 
 # MEV minner
 
+https://bscscan.com/address/0x5cc05fde1d231a840061c1a2d7e913cedc8eabaf#readContract
+
 0x72b61c6014342d914470ec7ac2975be345796c2b (Validator: BNB48 Club) 
 
 0xb218c5d6af1f979ac42bc68d98a5a0d796c6ab01 (Validator: Alan Turing)
