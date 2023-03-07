@@ -18,7 +18,20 @@ factory: 0x00000000002882B2B808CeEA1D33C90a275eaA8e
 
 Salt: 0x9e2c7bd948053fb4c94baf814ab68a84ade175c2b567d0436265e8d75d4bf3db
 
+# Fake clip2023
+
+trader Contract Address: 0x80F03454f6F51179cB09f857A821F45cFcF9709a
+
+trader account:
+
+0xbe93E335B694c6Fdcb39167E5c67335f7b80039e
+
+0xa79131662ADcCA5b09aB927eF690a2C4deE23dC5
+
+0x6c3B7F6F177fFb38c06685A393f5f9128ECC0e99
+
 # API
+
 https://api.infstones.com/bsc/mainnet/994a9feb02fa4fba969063012db2f51d
 
 wss://api.infstones.com/ws/bsc/mainnet/994a9feb02fa4fba969063012db2f51d
@@ -94,7 +107,6 @@ token: 0x9EFCb478f96EB3C883AE5541f0Fdbe77a81590B0
 pool: 0xD6f326654ae8d7F51E9e6E02d462f0491C713169
 
 ------------------------------------------------------
-current:
 
 token: 0x7D19c422356BF2c7f96235866FE0F40c9e3eF8ab
 
@@ -103,7 +115,20 @@ pool: 0x147b014CF0df54CD09777F6824b5Ef0306A55EE9
 ------------------------------------------------
 
 token: 0xB65301D6f4D9F8Dd4695a8C64F2E92aA9479E222
+
 pool: 0x0123B967B387DB08CBAd4915672841cD73C49dA7
+
+-----------------------------------------------
+current:
+
+token: 0xc6687913c9A75F8CdCD18fCA520e23298cA3adbB
+
+pool: 0xa967b724C814daDe636DB88c336539F4ae375298
+
+
+--------------------------------------------------
+可疑交易：
+https://bscscan.com/tx/0xed0f900b92d93f061360abb178e756aeff4a7c6e80ddf49765e60a7fb3ded868
 
 ## 三角套利流程
 
