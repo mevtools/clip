@@ -1,10 +1,5 @@
 [
 	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -44,8 +39,13 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "blockNumber",
+				"name": "timeStamp",
 				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_coinbase",
+				"type": "address"
 			}
 		],
 		"name": "tryBuyToken0WithCheck",
@@ -67,8 +67,13 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "blockNumber",
+				"name": "timeStamp",
 				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_coinbase",
+				"type": "address"
 			}
 		],
 		"name": "tryBuyToken1WithCheck",
@@ -101,6 +106,11 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
 	},
 	{
 		"inputs": [

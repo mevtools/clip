@@ -20,7 +20,7 @@ Salt: 0x9e2c7bd948053fb4c94baf814ab68a84ade175c2b567d0436265e8d75d4bf3db
 
 # Fake clip2023
 
-trader Contract Address: 0x80F03454f6F51179cB09f857A821F45cFcF9709a
+trader Contract Address: 0x75512dad7C1AFf92267170e1B19F2ABb6157fBBE
 
 trader account:
 
