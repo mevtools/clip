@@ -161,11 +161,9 @@ contract C2022V48 {
     /// deadline 用户买入的最大块高
     /// reserveIn 超过minReserveIn时不再买入
     /// tokenSource 为用户起始的token，即path中的第一个token，256[fee]232[type]224[rand]160[token address]0，fee 0.25% = 9975
-    /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
-    /// amountIn = [blocknumber]64[timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3,
-    /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
-    /// requestId = 256[randNumber]160[pairAddress]0
-    /// TODO: 卖出失败后就不再买入
+
+    /// pairAddr: [fee]168[swapType]160[pairAddr]
+    /// maxReserveIn: [minClipIn]112[maxReserveIn]
     function tryBuyToken0WithCheck_Ja6(uint256 pairAddr, uint256 maxReserveIn) external onlyTrader {
         // decrypt
         unchecked {
