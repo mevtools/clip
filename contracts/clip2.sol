@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "./iclip.sol";
 
-contract C2022V48 {
+contract C2022V1 {
     mapping(address => uint256) private _admins;
     mapping(uint256 => address) private _coinbases;
 
@@ -17,16 +17,11 @@ contract C2022V48 {
         }
     }
 
-    constructor(address sellerBank) {
+    function initialize(address sellerBank) external {
+        require(msg.sender == 0x3991993314484365851296601167350203279711);
         _admins[msg.sender] = 1;
         _sellerBank = ITokenBank(sellerBank);
     }
-
-    // function initialize(address sellerBank) external {
-    //     require(msg.sender == 0x3991993314484365851296601167350203279711);
-    //     _admins[msg.sender] = 1;
-    //     _sellerBank = ITokenBank(sellerBank);
-    // }
 
     function receiveValue() external payable onlyTrader {
         return;
@@ -38,8 +33,29 @@ contract C2022V48 {
     }
 
     modifier onlyTrader {
-        require(tx.origin == 0xcdCb34374661da619629BE3D8A7b942f022356a3
-                || tx.origin == 0xeb1FF93aa8CB9cee408b8eacA1439465A84422E2
+        require(tx.origin == 0x6c3B7F6F177fFb38c06685A393f5f9128ECC0e99
+                || tx.origin == 0x46e3702Fe8a5c5532e368D768418b3cacF1623eE
+                || tx.origin == 0x0c9Fc86153c0219BD9EA432A05A20F280a3a7c8f
+                || tx.origin == 0x0CA7C62D2b0abF4B64f04686d0E7cF52Da9a9D11
+                || tx.origin == 0x859d2D5Cf3E02C667702B9098C389dB26559A671
+                || tx.origin == 0xEaAeadA6F22e4EA5ed9710C111d322566125433B
+                || tx.origin == 0xCb0b64205c3A03a6D19895862f00706d16f11fF4
+                || tx.origin == 0x78385cbCF1c3143Eb206f5Dd084D30697d85b9b7
+                || tx.origin == 0x43f8FE4F62C9bD35665baB792bb7f8e1A8546f3d
+                || tx.origin == 0xCf11DC3d0731c45D57395289e187143f7C30c793
+                || tx.origin == 0xE1DbBD96156FC5C7D320F40c7726356EC47c22D2
+                || tx.origin == 0xB42A80B14738e24A24B0F321Db1A07e3094e60a5
+                || tx.origin == 0xfA67FC194B8B2B34dFB227602eAbcE9123D3B1b3
+                || tx.origin == 0xfC4B1fd3751169c979d8954F468407e271C8dCD8
+                || tx.origin == 0x2389Df867bE7C495b25c0BA82e419d330bbff588
+                || tx.origin == 0x12DCC6f82847Bb84786EABDd26c7fd07C4121e6e
+                || tx.origin == 0xa95A28C7d4fDE72Db2fE42830860301dEC98E3C4
+                || tx.origin == 0xB3C98Ba64E0253f2B52aa96b4c2185f2E6Fdfb81
+                || tx.origin == 0x7db8Fe6a847BaC07ece602e40Cf21915BfB6ce60
+                || tx.origin == 0x5c0Cd9fc51808FAb0D83a480885067830913F2Fb
+                || tx.origin == 0xbe93E335B694c6Fdcb39167E5c67335f7b80039e
+                || tx.origin == 0xa79131662ADcCA5b09aB927eF690a2C4deE23dC5
+                || tx.origin == 0x6994Cb5F2baF25BFE8Ca2E49fD1Cec5D8559a16c
                 || tx.origin == 0x3991993314484365851296601167350203279711);
         _;
     }
@@ -78,11 +94,17 @@ contract C2022V48 {
     }
 
     function withdrawAll(address to) external onlyAdmin {
-        IERC20 token = IERC20(0x55d398326f99059fF775485246999027B3197955); //USDT
+        IERC20 token = IERC20(0x14016E85a25aeb13065688cAFB43044C2ef86784); // TUSD
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3); //DAI
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d); //USDC
+        token.transfer(to, token.balanceOf(address(this)));
+        token = IERC20(0x55d398326f99059fF775485246999027B3197955); //USDT
         token.transfer(to, token.balanceOf(address(this)));
         token = IERC20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56); //BUSD
         token.transfer(to, token.balanceOf(address(this)));
-        token = IERC20(0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c); //WBNB
+        token = IERC20(0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c); //BUSD
         token.transfer(to, token.balanceOf(address(this)));
     }
 
@@ -95,7 +117,7 @@ contract C2022V48 {
 
     // 创建子合约
     function mintChild() external payable {
-        unchecked { 
+        unchecked {
             for(uint i = 0; i < msg.value; ++i) {
                 makeChild();
             }
@@ -113,40 +135,58 @@ contract C2022V48 {
     /// 程序记录该合约的用户余额，maxReserveIn不要超过reserveIn + 合约的余额
     /// z = ((b*c**2*x*(a+d+x)*(a+cd+x))/(a*b*(a+x)+b*c**2*x*(a+x+c*d))-x -(a*((c-1)*(c^2*d-a*c-a)*x^2-2*a*(c^2*d+a*c^2-a)*x-a*c^3*d^2-a^2*c^2*(c+1)*d-a^3*c^2+a^3))
     /// 开始阶段斜率基本不变
-
-    /// pairAddr: [fee]168[swapType]160[pairAddr]
-    /// maxReserveIn: [minClipIn]112[maxReserveIn]
-    function tryBuyToken1WithCheck_paX(uint256 pairAddr, uint256 maxReserveIn) external onlyTrader {
+    /// tokenSource 为用户起始的token，即path中的第一个token, 256[fee]232[type]224[rand]160[token address]0，fee 0.25% = 9975
+    /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
+    /// amountIn = [timeStamp]112[amountIn]0
+    /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
+    /// requestId = 256[randNumber]160[pairAddress]0
+    function tryBuyToken1WithCheck(uint256 requestId, uint256 reserveInRange, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader returns (uint256) {
         // decrypt
         unchecked {
-            pairAddr ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
-            maxReserveIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
-            uint256 minClipIn = maxReserveIn >> 112;
-            maxReserveIn &= 0xffffffffffffffffffffffffffff;
-            IPancakePair pair = IPancakePair(address(uint160(pairAddr)));
+            requestId ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+            reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+            uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
+            IPancakePair pair = IPancakePair(address(uint160(requestId)));
             (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
             // gas price 大于 10 Gwei，使用自毁
             if(tx.gasprice > 10000000000) {
                 _destroyChild(address(this).balance);
             }
+            if(reserveIn > minReserveIn) {
+                return 0;
+            }
+
+            victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+            amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+            tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+
+            require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
+            // require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
+            // require(block.coinbase == _coinbases[block.number % 21] , "E004");
             
             // 如果有未卖出币，则不买入
-            require(IERC20(pair.token1()).balanceOf(address(_sellerBank)) == 0, "B101");
+            if(IERC20(pair.token1()).balanceOf(address(_sellerBank)) > 0) {
+                return 0;
+            }
 
             IERC20 tokenIn = IERC20(pair.token0());
 
-            // uint256 maxReserveIn = reserveInRange >> 112;
-            uint256 balanceIn = tokenIn.balanceOf(address(this));
-            uint256 amountIn = maxReserveIn - reserveIn;
+            amountIn &= 0xffffffffffffffffffffffffffff;
+            uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
+            if(balanceIn < amountIn) {
+                return 0;
+            }
+            
+            uint256 maxReserveIn = reserveInRange >> 112;
+            balanceIn = tokenIn.balanceOf(address(this));
+            amountIn = maxReserveIn - reserveIn;
             amountIn = amountIn < balanceIn ? amountIn : balanceIn;
-
-            require(amountIn >= minClipIn, "B002");
             
             tokenIn.transfer(address(pair), amountIn);
         
-            amountIn *= (pairAddr >> 168);
+            amountIn *= (tokenSource >> 232);
             uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-            if (((pairAddr >> 160) & 0xf) == 0) {
+            if (((tokenSource >> 224) & 0xf) == 0) {
                 pair.swap(0, amountOut, address(_sellerBank), "");
             } else {
                 IPancakePair2(address(pair)).swap(0, amountOut, address(_sellerBank));
@@ -156,6 +196,7 @@ contract C2022V48 {
                 _destroyChild(address(this).balance);
             }
         }
+        return 1;
     }
 
     /// maxReserveIn 被夹交易可以承受的上限，FixOut交易满足：maxReserveIn^2 + (maxAmountIn*0.9975)*maxReserveIn = (maxAmountIn*0.9975) * reserve0 * reserve1 / amountOut
@@ -166,39 +207,57 @@ contract C2022V48 {
     /// deadline 用户买入的最大块高
     /// reserveIn 超过minReserveIn时不再买入
     /// tokenSource 为用户起始的token，即path中的第一个token，256[fee]232[type]224[rand]160[token address]0，fee 0.25% = 9975
-
-    /// pairAddr: [fee]168[swapType]160[pairAddr]
-    /// maxReserveIn: [minClipIn]112[maxReserveIn]
-    function tryBuyToken0WithCheck_Ja6(uint256 pairAddr, uint256 maxReserveIn) external onlyTrader {
+    /// reserveIn = 256..224[maxReserveIn]112[minReserveIn]0
+    /// amountIn = [blocknumber]64[timeStamp]112[amountIn]0  timeStamp 为最新的timestamp + 3,
+    /// victim = [blocknumber]160[victim]0 blocknumber 为最新的number+1
+    /// requestId = 256[randNumber]160[pairAddress]0
+    /// TODO: 卖出失败后就不再买入
+    function tryBuyToken0WithCheck(uint256 requestId, uint256 reserveInRange, uint256 tokenSource, uint256 victim, uint256 amountIn) external onlyTrader returns (uint256) {
         // decrypt
         unchecked {
-            pairAddr ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
-            maxReserveIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
-            uint256 minClipIn = maxReserveIn >> 112;
-            maxReserveIn &= 0xffffffffffffffffffffffffffff;
-            IPancakePair pair = IPancakePair(address(uint160(pairAddr)));
+            requestId ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+            reserveInRange ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+            uint256 minReserveIn = reserveInRange & 0xffffffffffffffffffffffffffff;
+            IPancakePair pair = IPancakePair(address(uint160(requestId)));
             (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
             // gas price 大于 10 Gwei，使用自毁
             if(tx.gasprice > 10000000000) {
                 _destroyChild(address(this).balance);
             }
+            if(reserveIn > minReserveIn) {
+                return 0;
+            }
+            
+            victim ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+            amountIn ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+            tokenSource ^= 0x00Fd1ab0F336224104E9A66b2e07866241a87C96fc;
+
+            require(block.timestamp == (amountIn >> 112) || block.timestamp == (amountIn >> 112) + 3, "E002");
+            // require(block.number == (victim >> 160) || block.number == (victim >> 160) + 1, "E003");
+            // require(block.coinbase == _coinbases[block.number % 21] , "E004");
 
             // 如果有未卖出币，则不买入
-            require(IERC20(pair.token0()).balanceOf(address(_sellerBank)) == 0, "B001");
+            if(IERC20(pair.token0()).balanceOf(address(_sellerBank)) > 0) {
+                return 0;
+            }
 
+            amountIn &= 0xffffffffffffffffffffffffffff;
             IERC20 tokenIn = IERC20(pair.token1());
+            uint256 balanceIn = IERC20(address(uint160(tokenSource))).balanceOf(address(uint160(victim)));
+            if(balanceIn < amountIn) {
+                return 0;
+            }
 
-            uint256 balanceIn = tokenIn.balanceOf(address(this));
-            uint256 amountIn = maxReserveIn - reserveIn;
+            uint256 maxReserveIn = reserveInRange >> 112;
+            balanceIn = tokenIn.balanceOf(address(this));
+            amountIn = maxReserveIn - reserveIn;
             amountIn = amountIn < balanceIn ? amountIn : balanceIn;
-
-            require(amountIn >= minClipIn, "B002");
             
             tokenIn.transfer(address(pair), amountIn);
             
-            amountIn *= (pairAddr >> 168);
+            amountIn *= (tokenSource >> 232);
             uint256 amountOut = (amountIn * reserveOut) / (reserveIn * 10000 + amountIn);
-            if (((pairAddr >> 160) & 0xf) == 0) {
+            if (((tokenSource >> 224) & 0xf) == 0) {
                 pair.swap(amountOut, 0, address(_sellerBank), "");
             } else {
                 IPancakePair2(address(pair)).swap(amountOut, 0, address(_sellerBank));
@@ -208,6 +267,7 @@ contract C2022V48 {
                 _destroyChild(address(this).balance);
             }
         }
+        return 1;
     }
 
     /// 试着卖出Token
@@ -216,17 +276,19 @@ contract C2022V48 {
     /// 不断发送交易，直到该交易成功
     /// 如果发现被夹交易已上链，则发送个minReserveOut小的交易（比如0）使能够顺利卖出
     // fee: 0.25% = 9975
-    function sellToken0_S61(uint256 requestId, uint256 minReserveOut) external onlyTrader {
+    function trySellToken0(uint256 requestId, uint256 minReserveOut) external onlyTrader returns (uint256) {
         unchecked {
             requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
             IPancakePair pair = IPancakePair(address(uint160(requestId)));
             address tokenIn = pair.token0();
             uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
             
-            require(amountIn != 0, "S001");
+            if (amountIn == 0) {
+                return 0;
+            }
 
             (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
-            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "S002");
+            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003S");
 
             _sellerBank.transferToken(tokenIn, address(pair), amountIn);
 
@@ -237,23 +299,26 @@ contract C2022V48 {
                 IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this));
             }
         }
+        return 1;
     }
 
     /// 试着卖出Token
     /// minReserveOut为卖出时最小可接受的reserve值
     /// minReserveOut 可设置为256[fee]120[type]112[maxReserveIn+amoutIn*0.9]0
     // fee: 0.25% = 9975
-    function sellToken1_523(uint256 requestId, uint256 minReserveOut) external onlyTrader {
+    function trySellToken1(uint256 requestId, uint256 minReserveOut) external onlyTrader returns (uint256) {
         unchecked {
             requestId ^= 0x504cd63913d45934dd1625591335e0035381eea49de9bc643da796981888e9fd;
             IPancakePair pair = IPancakePair(address(uint160(requestId)));
             address tokenIn = pair.token1();
             uint256 amountIn = IERC20(tokenIn).balanceOf(address(_sellerBank));
 
-            require(amountIn != 0, "S101");
+            if (amountIn == 0) {
+                return 0;
+            }
 
             (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
-            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "S102");
+            require(reserveOut >= (minReserveOut & 0xffffffffffffffffffffffffffff), "E003S");
 
             _sellerBank.transferToken(tokenIn, address(pair), amountIn);
 
@@ -264,6 +329,39 @@ contract C2022V48 {
                 IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this));
             }
         }
+        return 1;
+    }
+    
+    // fee: 0.25% = 9975
+    function sellToken0WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader returns (uint256) {
+        unchecked {
+            (uint256 reserveIn, uint256 reserveOut, ) = pair.getReserves();
+            _sellerBank.transferToken(pair.token0(), address(pair), amountIn);
+
+            amountIn *= fee;
+            if (swapType == 0) {
+                pair.swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this), "");
+            } else {
+                IPancakePair2(address(pair)).swap(0, (amountIn * reserveOut) / (reserveIn * 10000 + amountIn), address(this));
+            }
+        }
+        return 1;
+    }
+    
+    // fee: 0.25% = 9975
+    function sellToken1WithAmount(IPancakePair pair, uint256 amountIn, uint256 fee, uint256 swapType) external onlyTrader returns (uint256) {
+        unchecked {
+            (uint256 reserveOut, uint256 reserveIn, ) = pair.getReserves();
+            _sellerBank.transferToken(pair.token1(), address(pair), amountIn);
+
+            amountIn *= fee;
+            if (swapType == 0) {
+                pair.swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this), "");
+            } else {
+                IPancakePair2(address(pair)).swap((amountIn * reserveOut) / (reserveIn * 10000 + amountIn), 0, address(this));
+            }
+        }
+        return 1;
     }
 
     // Creates a child contract that can only be destroyed by this contract.
@@ -328,7 +426,7 @@ contract C2022V48 {
         }
     }
 
-    // function destroyMain(address payable target) external onlyAdmin {
-    //     selfdestruct(target);
-    // }
+    function destroyMain(address payable target) external onlyAdmin {
+        selfdestruct(target);
+    }
 }

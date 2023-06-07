@@ -9,18 +9,17 @@ contract C2022V1 {
 
     ITokenBank private _sellerBank;
 
+    constructor(address sellerBank) {
+        _admins[msg.sender] = 1;
+        _sellerBank = ITokenBank(sellerBank);
+    }
+
     receive() external payable {
         unchecked {
             for(uint i = 0; i < msg.value; ++i) {
                 makeChild();
             }
         }
-    }
-
-    function initialize(address sellerBank) external {
-        require(msg.sender == 0x3991993314484365851296601167350203279711);
-        _admins[msg.sender] = 1;
-        _sellerBank = ITokenBank(sellerBank);
     }
 
     function receiveValue() external payable onlyTrader {
@@ -31,7 +30,8 @@ contract C2022V1 {
         require(_admins[msg.sender] == 1);
         _;
     }
-
+    
+    // 可以发起夹子交易的地址，记得修改
     modifier onlyTrader {
         require(tx.origin == 0x6c3B7F6F177fFb38c06685A393f5f9128ECC0e99
                 || tx.origin == 0x46e3702Fe8a5c5532e368D768418b3cacF1623eE
@@ -426,7 +426,7 @@ contract C2022V1 {
         }
     }
 
-    function destroyMain(address payable target) external onlyAdmin {
-        selfdestruct(target);
-    }
+    // function destroyMain(address payable target) external onlyAdmin {
+    //     selfdestruct(target);
+    // }
 }

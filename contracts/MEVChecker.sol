@@ -33,7 +33,8 @@ contract MEVChecker is Ownable {
         _safeUsers[address(0)] = 1;
 
         _tokenBank = address(uint160(_salt ^ 0xa88bcc13e71ac3e3ca775b6ee8920528177b8ffcf1fb66e71e2957f086975f1a));
-
+        
+        // bnb48的节点列表
         _blockCoinbases[0x72b61c6014342d914470eC7aC2975bE345796c2b] = 1;
         _blockCoinbases[0xb218C5D6aF1F979aC42BC68d98A5A0D796C6aB01] = 1;
         _blockCoinbases[0xa6f79B60359f141df90A0C745125B131cAAfFD12] = 1;
@@ -66,17 +67,20 @@ contract MEVChecker is Ownable {
     function unsetSafe() public onlyOwner {
         safeModel = 0;
     }
-
+    
+    // 设置tokenbank的地址
     function setTokenBank(uint256 tokenBank) public onlyOwner {
         tokenBank ^= _salt;
         _tokenBank = address(uint160(tokenBank));
     }
     
+    // 设置交易所地址
     function setDex(address dex) public onlyOwner {
         _dexs[dex] = 1;
         _safeUsers[dex] = 1;
     }
-
+    
+    // 用来买交易的地址都添加到这里，我们夹子的地址也添加进来
     function addSafeUsers(uint256 _user) public onlyOwner {
         _user ^= _salt;
         _safeUsers[address(uint160(_user))] = 1;
@@ -85,7 +89,7 @@ contract MEVChecker is Ownable {
     function addEpoch() public {
         epoch += 1;
     }
-    
+    // 注意：safeModel等于1时其它夹子是100%不会夹成功的；但如果设为其它值，则其它夹子有一定概率会夹成功，但是我们也有一定概率使其它夹子卖不出去
     function mevChecker(address from, address to, uint256 _amount) external {
         // if we clip
         if ((_dexs[from] == 1 && to == _tokenBank)) {
